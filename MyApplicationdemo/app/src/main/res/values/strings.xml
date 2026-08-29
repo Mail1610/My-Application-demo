@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">顯</string>
+    <string name="app_tagline">共同記帳，輕鬆結算</string>
+
+    <string name="hint_email">電子郵件</string>
+    <string name="hint_password">密碼</string>
+    <string name="btn_login">登入</string>
+    <string name="go_to_register">還沒有帳號？立即註冊</string>
+
+    <string name="title_register">建立帳號</string>
+    <string name="hint_username">用戶名稱</string>
+    <string name="hint_confirm_password">確認密碼</string>
+    <string name="btn_register">建立帳號</string>
+    <string name="go_to_login">已有帳號？返回登入</string>
+    <string name="btn_back">返回</string>
+
+    <string name="title_my_groups">我的群組</string>
+    <string name="label_my_balance">我的餘額</string>
+    <string name="label_my_settlement">我的結算</string>
+    <string name="btn_view_settlement">查看結算</string>
+    <string name="btn_add_group">建立群組</string>
+    <string name="btn_add_expense">新增支出</string>
+    <string name="label_members">位成員</string>
+    <string name="label_paid_by">付款</string>
+    <string name="label_my_share">我的分攤：$</string>
+</resources>
