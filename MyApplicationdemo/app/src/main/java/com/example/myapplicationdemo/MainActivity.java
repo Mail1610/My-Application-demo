@@ -2,6 +2,7 @@ package com.example.myapplicationdemo;
 
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.myapplicationdemo.adapter.GroupAdapter;
 import com.example.myapplicationdemo.databinding.ActivityMainBinding;
@@ -22,13 +23,34 @@ public class MainActivity extends AppCompatActivity {
 
         setSupportActionBar(binding.toolbar);
 
+        List<Group> groups = getMockGroups();
+        setupSummaryCard(groups);
+
         binding.rvGroups.setLayoutManager(new LinearLayoutManager(this));
-        binding.rvGroups.setAdapter(new GroupAdapter(getMockGroups()));
+        binding.rvGroups.setAdapter(new GroupAdapter(groups));
 
         binding.fabAddGroup.setOnClickListener(v -> {
             LogUtils.info("新增群組");
             // TODO: 開啟建立群組頁面
         });
+    }
+
+    private void setupSummaryCard(List<Group> groups) {
+        double total = 0;
+        for (Group g : groups) total += g.getMyBalance();
+
+        binding.tvGroupsSummary.setText("參與 " + groups.size() + " 個群組");
+
+        if (total > 0) {
+            binding.tvNetBalance.setText(String.format("+$%.0f", total));
+            binding.tvNetBalance.setTextColor(ContextCompat.getColor(this, R.color.color_positive));
+        } else if (total < 0) {
+            binding.tvNetBalance.setText(String.format("-$%.0f", Math.abs(total)));
+            binding.tvNetBalance.setTextColor(ContextCompat.getColor(this, R.color.color_negative));
+        } else {
+            binding.tvNetBalance.setText("已結清");
+            binding.tvNetBalance.setTextColor(ContextCompat.getColor(this, R.color.color_settled));
+        }
     }
 
     private List<Group> getMockGroups() {

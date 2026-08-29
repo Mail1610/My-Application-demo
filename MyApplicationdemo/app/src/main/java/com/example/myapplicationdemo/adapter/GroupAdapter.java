@@ -2,6 +2,7 @@ package com.example.myapplicationdemo.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.GradientDrawable;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
@@ -14,6 +15,10 @@ import com.example.myapplicationdemo.model.Group;
 import java.util.List;
 
 public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> {
+
+    private static final int[] AVATAR_COLORS = {
+        0xFF4361EE, 0xFF7B2FBE, 0xFFE63946, 0xFF00A878, 0xFFF4A261
+    };
 
     private final List<Group> groups;
 
@@ -50,6 +55,14 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
 
         void bind(Group group) {
             Context ctx = itemView.getContext();
+
+            // Avatar
+            binding.tvGroupInitial.setText(group.getName().substring(0, 1));
+            GradientDrawable circle = new GradientDrawable();
+            circle.setShape(GradientDrawable.OVAL);
+            circle.setColor(AVATAR_COLORS[group.getId() % AVATAR_COLORS.length]);
+            binding.tvGroupInitial.setBackground(circle);
+
             binding.tvGroupName.setText(group.getName());
             binding.tvMemberCount.setText(group.getMemberCount() + " " + ctx.getString(R.string.label_members));
 
