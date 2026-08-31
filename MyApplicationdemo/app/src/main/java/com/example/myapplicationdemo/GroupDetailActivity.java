@@ -3,17 +3,18 @@ package com.example.myapplicationdemo;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.myapplicationdemo.adapter.ExpenseAdapter;
 import com.example.myapplicationdemo.databinding.ActivityGroupDetailBinding;
-import com.example.myapplicationdemo.model.Expense;
 import com.example.myapplicationdemo.utils.LogUtils;
+import com.example.myapplicationdemo.viewmodel.GroupDetailViewModel;
 import java.util.ArrayList;
-import java.util.List;
 
 public class GroupDetailActivity extends AppCompatActivity {
 
     private ActivityGroupDetailBinding binding;
+    private ExpenseAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,6 +22,7 @@ public class GroupDetailActivity extends AppCompatActivity {
         binding = ActivityGroupDetailBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        int groupId = getIntent().getIntExtra("group_id", 0);
         String groupName = getIntent().getStringExtra("group_name");
         double groupBalance = getIntent().getDoubleExtra("group_balance", 0);
 
@@ -32,8 +34,13 @@ public class GroupDetailActivity extends AppCompatActivity {
 
         setupBalance(groupBalance);
 
+        adapter = new ExpenseAdapter(new ArrayList<>());
         binding.rvExpenses.setLayoutManager(new LinearLayoutManager(this));
-        binding.rvExpenses.setAdapter(new ExpenseAdapter(getMockExpenses()));
+        binding.rvExpenses.setAdapter(adapter);
+
+        GroupDetailViewModel viewModel = new ViewModelProvider(this).get(GroupDetailViewModel.class);
+        viewModel.getExpenses().observe(this, adapter::updateData);
+        viewModel.loadExpenses(groupId);
 
         binding.btnSettlement.setOnClickListener(v -> {
             LogUtils.info("查看結算：" + groupName);
@@ -63,15 +70,5 @@ public class GroupDetailActivity extends AppCompatActivity {
     public boolean onSupportNavigateUp() {
         finish();
         return true;
-    }
-
-    private List<Expense> getMockExpenses() {
-        List<Expense> list = new ArrayList<>();
-        list.add(new Expense(1, "超市購物", "小明", 900, 300, "08/29"));
-        list.add(new Expense(2, "水電費", "小花", 1800, 600, "08/25"));
-        list.add(new Expense(3, "外送晚餐", "阿強", 450, 150, "08/20"));
-        list.add(new Expense(4, "網路費", "小明", 600, 200, "08/15"));
-        list.add(new Expense(5, "衛生紙／清潔用品", "阿強", 300, 100, "08/10"));
-        return list;
     }
 }

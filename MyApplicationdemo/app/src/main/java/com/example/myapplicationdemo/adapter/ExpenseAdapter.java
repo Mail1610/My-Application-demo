@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.myapplicationdemo.databinding.ItemExpenseBinding;
 import com.example.myapplicationdemo.model.Expense;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHolder> {
@@ -14,10 +15,16 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHold
         0xFF4361EE, 0xFF7B2FBE, 0xFFE63946, 0xFF00A878, 0xFFF4A261
     };
 
-    private final List<Expense> expenses;
+    private final List<Expense> expenses = new ArrayList<>();
 
     public ExpenseAdapter(List<Expense> expenses) {
-        this.expenses = expenses;
+        this.expenses.addAll(expenses);
+    }
+
+    public void updateData(List<Expense> newExpenses) {
+        expenses.clear();
+        expenses.addAll(newExpenses);
+        notifyDataSetChanged();
     }
 
     @NonNull

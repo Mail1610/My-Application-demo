@@ -3,17 +3,21 @@ package com.example.myapplicationdemo;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.myapplicationdemo.adapter.GroupAdapter;
 import com.example.myapplicationdemo.databinding.ActivityMainBinding;
 import com.example.myapplicationdemo.model.Group;
 import com.example.myapplicationdemo.utils.LogUtils;
+import com.example.myapplicationdemo.viewmodel.MainViewModel;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
+    private GroupAdapter adapter;
+    private MainViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,16 +27,22 @@ public class MainActivity extends AppCompatActivity {
 
         setSupportActionBar(binding.toolbar);
 
-        List<Group> groups = getMockGroups();
-        setupSummaryCard(groups);
-
+        adapter = new GroupAdapter(new ArrayList<>());
         binding.rvGroups.setLayoutManager(new LinearLayoutManager(this));
-        binding.rvGroups.setAdapter(new GroupAdapter(groups));
+        binding.rvGroups.setAdapter(adapter);
+
+        viewModel = new ViewModelProvider(this).get(MainViewModel.class);
+        viewModel.getGroups().observe(this, this::onGroupsLoaded);
 
         binding.fabAddGroup.setOnClickListener(v -> {
             LogUtils.info("新增群組");
             // TODO: 開啟建立群組頁面
         });
+    }
+
+    private void onGroupsLoaded(List<Group> groups) {
+        adapter.updateData(groups);
+        setupSummaryCard(groups);
     }
 
     private void setupSummaryCard(List<Group> groups) {
@@ -51,13 +61,5 @@ public class MainActivity extends AppCompatActivity {
             binding.tvNetBalance.setText("已結清");
             binding.tvNetBalance.setTextColor(ContextCompat.getColor(this, R.color.color_settled));
         }
-    }
-
-    private List<Group> getMockGroups() {
-        List<Group> list = new ArrayList<>();
-        list.add(new Group(1, "室友帳", 3, -350));
-        list.add(new Group(2, "日本旅遊", 4, 1200));
-        list.add(new Group(3, "情侶帳", 2, 0));
-        return list;
     }
 }

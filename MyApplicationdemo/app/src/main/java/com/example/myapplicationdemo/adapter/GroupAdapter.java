@@ -12,6 +12,7 @@ import com.example.myapplicationdemo.GroupDetailActivity;
 import com.example.myapplicationdemo.R;
 import com.example.myapplicationdemo.databinding.ItemGroupBinding;
 import com.example.myapplicationdemo.model.Group;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> {
@@ -20,10 +21,16 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
         0xFF4361EE, 0xFF7B2FBE, 0xFFE63946, 0xFF00A878, 0xFFF4A261
     };
 
-    private final List<Group> groups;
+    private final List<Group> groups = new ArrayList<>();
 
     public GroupAdapter(List<Group> groups) {
-        this.groups = groups;
+        this.groups.addAll(groups);
+    }
+
+    public void updateData(List<Group> newGroups) {
+        groups.clear();
+        groups.addAll(newGroups);
+        notifyDataSetChanged();
     }
 
     @NonNull

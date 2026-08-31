@@ -1,7 +1,12 @@
 package com.example.myapplicationdemo.model;
 
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+@Entity(tableName = "groups")
 public class Group {
 
+    @PrimaryKey
     private final int id;
     private final String name;
     private final int memberCount;
