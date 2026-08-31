@@ -4,36 +4,66 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Patterns;
-import android.widget.Toast;
+import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import com.example.myapplicationdemo.databinding.ActivityLoginBinding;
-import com.example.myapplicationdemo.utils.LogUtils;
+import com.example.myapplicationdemo.utils.SessionManager;
+import com.example.myapplicationdemo.viewmodel.LoginViewModel;
 
 public class LoginActivity extends AppCompatActivity {
 
     private ActivityLoginBinding binding;
+    private LoginViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (new SessionManager(this).isLoggedIn()) {
+            goToMain();
+            return;
+        }
+
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        binding.btnLogin.setOnClickListener(v -> handleLogin());
-        binding.tvGoToRegister.setOnClickListener(v -> {
-            startActivity(new Intent(this, RegisterActivity.class));
+        viewModel = new ViewModelProvider(this).get(LoginViewModel.class);
+        viewModel.getState().observe(this, state -> {
+            switch (state.status) {
+                case LOADING:
+                    setLoading(true);
+                    break;
+                case SUCCESS:
+                    goToMain();
+                    break;
+                case ERROR:
+                    setLoading(false);
+                    binding.tilPassword.setError(state.message);
+                    break;
+            }
         });
+
+        binding.btnLogin.setOnClickListener(v -> handleLogin());
+        binding.tvGoToRegister.setOnClickListener(v ->
+                startActivity(new Intent(this, RegisterActivity.class)));
     }
 
     private void handleLogin() {
         String email = binding.etEmail.getText().toString().trim();
         String password = binding.etPassword.getText().toString().trim();
-
         if (!validate(email, password)) return;
+        viewModel.login(email, password);
+    }
 
-        LogUtils.info("登入嘗試：" + email);
-        // TODO: 串接後端 API
-        Toast.makeText(this, "登入功能開發中", Toast.LENGTH_SHORT).show();
+    private void setLoading(boolean loading) {
+        binding.btnLogin.setEnabled(!loading);
+        binding.progressBar.setVisibility(loading ? View.VISIBLE : View.GONE);
+    }
+
+    private void goToMain() {
+        startActivity(new Intent(this, MainActivity.class));
+        finish();
     }
 
     private boolean validate(String email, String password) {
@@ -56,7 +86,6 @@ public class LoginActivity extends AppCompatActivity {
             return false;
         }
         binding.tilPassword.setError(null);
-
         return true;
     }
 }

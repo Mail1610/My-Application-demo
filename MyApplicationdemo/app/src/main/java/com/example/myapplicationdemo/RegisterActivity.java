@@ -1,22 +1,41 @@
 package com.example.myapplicationdemo;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Patterns;
-import android.widget.Toast;
+import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import com.example.myapplicationdemo.databinding.ActivityRegisterBinding;
-import com.example.myapplicationdemo.utils.LogUtils;
+import com.example.myapplicationdemo.viewmodel.RegisterViewModel;
 
 public class RegisterActivity extends AppCompatActivity {
 
     private ActivityRegisterBinding binding;
+    private RegisterViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityRegisterBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        viewModel = new ViewModelProvider(this).get(RegisterViewModel.class);
+        viewModel.getState().observe(this, state -> {
+            switch (state.status) {
+                case LOADING:
+                    setLoading(true);
+                    break;
+                case SUCCESS:
+                    goToMain();
+                    break;
+                case ERROR:
+                    setLoading(false);
+                    binding.tilPassword.setError(state.message);
+                    break;
+            }
+        });
 
         binding.btnBack.setOnClickListener(v -> finish());
         binding.tvGoToLogin.setOnClickListener(v -> finish());
@@ -28,12 +47,19 @@ public class RegisterActivity extends AppCompatActivity {
         String email = binding.etEmail.getText().toString().trim();
         String password = binding.etPassword.getText().toString().trim();
         String confirmPassword = binding.etConfirmPassword.getText().toString().trim();
-
         if (!validate(username, email, password, confirmPassword)) return;
+        viewModel.register(username, email, password);
+    }
 
-        LogUtils.info("註冊嘗試：" + email);
-        // TODO: 串接後端 API
-        Toast.makeText(this, "註冊功能開發中", Toast.LENGTH_SHORT).show();
+    private void setLoading(boolean loading) {
+        binding.btnRegister.setEnabled(!loading);
+        binding.progressBar.setVisibility(loading ? View.VISIBLE : View.GONE);
+    }
+
+    private void goToMain() {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
     }
 
     private boolean validate(String username, String email, String password, String confirmPassword) {
@@ -68,7 +94,6 @@ public class RegisterActivity extends AppCompatActivity {
             return false;
         }
         binding.tilConfirmPassword.setError(null);
-
         return true;
     }
 }
