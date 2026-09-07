@@ -2591,6 +2591,7 @@
     <string name="btn_confirm">確認</string>
     <string name="btn_delete">刪除</string>
     <string name="btn_login">登入</string>
+    <string name="btn_logout">登出</string>
     <string name="btn_register">建立帳號</string>
     <string name="btn_undo">復原</string>
     <string name="btn_view_settlement">查看結算</string>
@@ -2606,9 +2607,11 @@
     <string name="character_counter_pattern" translatable="false">%1$d/%2$d</string>
     <string name="clear_text_end_icon_content_description">Clear text</string>
     <string name="dialog_msg_delete_group">確定要刪除「%1$s」？此群組的所有支出也會一併刪除。</string>
+    <string name="dialog_msg_logout">確定要登出嗎？</string>
     <string name="dialog_title_add_expense">新增支出</string>
     <string name="dialog_title_create_group">建立群組</string>
     <string name="dialog_title_delete_group">刪除群組</string>
+    <string name="dialog_title_logout">確認登出</string>
     <string description="Screen reader announcement for when a checkbox is on error. [CHAR LIMIT=NONE]" name="error_a11y_label">
     Error: invalid
   </string>
@@ -2648,6 +2651,8 @@
     <string name="label_need_to_pay">你需要支付 $%1$.0f</string>
     <string name="label_net_balance_header">我的總淨額</string>
     <string name="label_net_balance_placeholder">$0</string>
+    <string name="label_no_expenses">此群組尚無支出記錄\n點擊右下角按鈕新增支出</string>
+    <string name="label_no_groups">目前沒有群組\n點擊下方按鈕建立第一個群組</string>
     <string name="label_paid_by_user">%s 付款</string>
     <string name="label_register_subtitle">加入顯，開始共同管理帳單</string>
     <string name="label_settlement_i_owe">你欠 %1$s $%2$.0f</string>

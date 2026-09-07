@@ -32,6 +32,9 @@ public final class ActivityMainBinding implements ViewBinding {
   public final MaterialToolbar toolbar;
 
   @NonNull
+  public final TextView tvEmptyGroups;
+
+  @NonNull
   public final TextView tvGroupsSummary;
 
   @NonNull
@@ -39,12 +42,13 @@ public final class ActivityMainBinding implements ViewBinding {
 
   private ActivityMainBinding(@NonNull CoordinatorLayout rootView,
       @NonNull ExtendedFloatingActionButton fabAddGroup, @NonNull RecyclerView rvGroups,
-      @NonNull MaterialToolbar toolbar, @NonNull TextView tvGroupsSummary,
-      @NonNull TextView tvNetBalance) {
+      @NonNull MaterialToolbar toolbar, @NonNull TextView tvEmptyGroups,
+      @NonNull TextView tvGroupsSummary, @NonNull TextView tvNetBalance) {
     this.rootView = rootView;
     this.fabAddGroup = fabAddGroup;
     this.rvGroups = rvGroups;
     this.toolbar = toolbar;
+    this.tvEmptyGroups = tvEmptyGroups;
     this.tvGroupsSummary = tvGroupsSummary;
     this.tvNetBalance = tvNetBalance;
   }
@@ -94,6 +98,12 @@ public final class ActivityMainBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.tv_empty_groups;
+      TextView tvEmptyGroups = ViewBindings.findChildViewById(rootView, id);
+      if (tvEmptyGroups == null) {
+        break missingId;
+      }
+
       id = R.id.tv_groups_summary;
       TextView tvGroupsSummary = ViewBindings.findChildViewById(rootView, id);
       if (tvGroupsSummary == null) {
@@ -107,7 +117,7 @@ public final class ActivityMainBinding implements ViewBinding {
       }
 
       return new ActivityMainBinding((CoordinatorLayout) rootView, fabAddGroup, rvGroups, toolbar,
-          tvGroupsSummary, tvNetBalance);
+          tvEmptyGroups, tvGroupsSummary, tvNetBalance);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

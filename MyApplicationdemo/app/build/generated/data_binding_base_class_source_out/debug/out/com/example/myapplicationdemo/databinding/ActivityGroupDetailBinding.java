@@ -38,16 +38,20 @@ public final class ActivityGroupDetailBinding implements ViewBinding {
   @NonNull
   public final TextView tvBalanceAmount;
 
+  @NonNull
+  public final TextView tvEmptyExpenses;
+
   private ActivityGroupDetailBinding(@NonNull CoordinatorLayout rootView,
       @NonNull MaterialButton btnSettlement, @NonNull ExtendedFloatingActionButton fabAddExpense,
       @NonNull RecyclerView rvExpenses, @NonNull MaterialToolbar toolbar,
-      @NonNull TextView tvBalanceAmount) {
+      @NonNull TextView tvBalanceAmount, @NonNull TextView tvEmptyExpenses) {
     this.rootView = rootView;
     this.btnSettlement = btnSettlement;
     this.fabAddExpense = fabAddExpense;
     this.rvExpenses = rvExpenses;
     this.toolbar = toolbar;
     this.tvBalanceAmount = tvBalanceAmount;
+    this.tvEmptyExpenses = tvEmptyExpenses;
   }
 
   @Override
@@ -107,8 +111,14 @@ public final class ActivityGroupDetailBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.tv_empty_expenses;
+      TextView tvEmptyExpenses = ViewBindings.findChildViewById(rootView, id);
+      if (tvEmptyExpenses == null) {
+        break missingId;
+      }
+
       return new ActivityGroupDetailBinding((CoordinatorLayout) rootView, btnSettlement,
-          fabAddExpense, rvExpenses, toolbar, tvBalanceAmount);
+          fabAddExpense, rvExpenses, toolbar, tvBalanceAmount, tvEmptyExpenses);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

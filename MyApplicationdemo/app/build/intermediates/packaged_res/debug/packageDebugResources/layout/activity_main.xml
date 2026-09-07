@@ -67,6 +67,18 @@
         android:paddingBottom="88dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
+    <TextView
+        android:id="@+id/tv_empty_groups"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="@string/label_no_groups"
+        android:textColor="@color/color_text_hint"
+        android:textSize="15sp"
+        android:lineSpacingMultiplier="1.5"
+        android:visibility="gone"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/fab_add_group"
         android:layout_width="wrap_content"

@@ -62,7 +62,14 @@
     <string name="label_settlement_i_owe">你欠 %1$s $%2$.0f</string>
     <string name="label_settlement_others_owe">待收款 $%1$.0f</string>
 
+    <!-- Empty states -->
+    <string name="label_no_groups">目前沒有群組\n點擊下方按鈕建立第一個群組</string>
+    <string name="label_no_expenses">此群組尚無支出記錄\n點擊右下角按鈕新增支出</string>
+
     <!-- Common -->
+    <string name="btn_logout">登出</string>
+    <string name="dialog_title_logout">確認登出</string>
+    <string name="dialog_msg_logout">確定要登出嗎？</string>
     <string name="btn_confirm">確認</string>
     <string name="btn_cancel">取消</string>
     <string name="error_field_required">此欄位為必填</string>

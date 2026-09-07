@@ -94,6 +94,18 @@
             android:paddingBottom="88dp" />
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/tv_empty_expenses"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="@string/label_no_expenses"
+        android:textColor="@color/color_text_hint"
+        android:textSize="15sp"
+        android:lineSpacingMultiplier="1.5"
+        android:visibility="gone"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/fab_add_expense"
         android:layout_width="wrap_content"

@@ -19,6 +19,8 @@ drawable ic_arrow_back
 drawable ic_delete
 drawable ic_launcher_background
 drawable ic_launcher_foreground
+drawable ic_logout
+id action_logout
 id btn_back
 id btn_login
 id btn_register
@@ -55,6 +57,8 @@ id tv_date
 id tv_date_day
 id tv_date_month
 id tv_description
+id tv_empty_expenses
+id tv_empty_groups
 id tv_go_to_login
 id tv_go_to_register
 id tv_group_initial
@@ -75,6 +79,7 @@ layout dialog_create_group
 layout fragment_settlement_bottom_sheet
 layout item_expense
 layout item_group
+menu menu_main
 mipmap ic_launcher
 mipmap ic_launcher_round
 string app_name
@@ -86,13 +91,16 @@ string btn_cancel
 string btn_confirm
 string btn_delete
 string btn_login
+string btn_logout
 string btn_register
 string btn_undo
 string btn_view_settlement
 string dialog_msg_delete_group
+string dialog_msg_logout
 string dialog_title_add_expense
 string dialog_title_create_group
 string dialog_title_delete_group
+string dialog_title_logout
 string error_amount_invalid
 string error_field_required
 string go_to_login
@@ -122,6 +130,8 @@ string label_my_share_amount
 string label_need_to_pay
 string label_net_balance_header
 string label_net_balance_placeholder
+string label_no_expenses
+string label_no_groups
 string label_paid_by_user
 string label_register_subtitle
 string label_settlement_i_owe

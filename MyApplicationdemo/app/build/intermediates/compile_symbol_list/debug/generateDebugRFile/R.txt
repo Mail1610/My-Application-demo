@@ -18,6 +18,8 @@ int drawable ic_arrow_back 0x0
 int drawable ic_delete 0x0
 int drawable ic_launcher_background 0x0
 int drawable ic_launcher_foreground 0x0
+int drawable ic_logout 0x0
+int id action_logout 0x0
 int id btn_back 0x0
 int id btn_login 0x0
 int id btn_register 0x0
@@ -54,6 +56,8 @@ int id tv_date 0x0
 int id tv_date_day 0x0
 int id tv_date_month 0x0
 int id tv_description 0x0
+int id tv_empty_expenses 0x0
+int id tv_empty_groups 0x0
 int id tv_go_to_login 0x0
 int id tv_go_to_register 0x0
 int id tv_group_initial 0x0
@@ -74,6 +78,7 @@ int layout dialog_create_group 0x0
 int layout fragment_settlement_bottom_sheet 0x0
 int layout item_expense 0x0
 int layout item_group 0x0
+int menu menu_main 0x0
 int mipmap ic_launcher 0x0
 int mipmap ic_launcher_round 0x0
 int string app_name 0x0
@@ -85,13 +90,16 @@ int string btn_cancel 0x0
 int string btn_confirm 0x0
 int string btn_delete 0x0
 int string btn_login 0x0
+int string btn_logout 0x0
 int string btn_register 0x0
 int string btn_undo 0x0
 int string btn_view_settlement 0x0
 int string dialog_msg_delete_group 0x0
+int string dialog_msg_logout 0x0
 int string dialog_title_add_expense 0x0
 int string dialog_title_create_group 0x0
 int string dialog_title_delete_group 0x0
+int string dialog_title_logout 0x0
 int string error_amount_invalid 0x0
 int string error_field_required 0x0
 int string go_to_login 0x0
@@ -121,6 +129,8 @@ int string label_my_share_amount 0x0
 int string label_need_to_pay 0x0
 int string label_net_balance_header 0x0
 int string label_net_balance_placeholder 0x0
+int string label_no_expenses 0x0
+int string label_no_groups 0x0
 int string label_paid_by_user 0x0
 int string label_register_subtitle 0x0
 int string label_settlement_i_owe 0x0

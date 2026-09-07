@@ -5,7 +5,9 @@ import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.View;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
@@ -19,9 +21,11 @@ import com.example.myapplicationdemo.model.Expense;
 import com.example.myapplicationdemo.viewmodel.GroupDetailViewModel;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputEditText;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class GroupDetailActivity extends AppCompatActivity {
@@ -30,7 +34,6 @@ public class GroupDetailActivity extends AppCompatActivity {
     private ExpenseAdapter adapter;
     private GroupDetailViewModel viewModel;
     private int groupId;
-    private double groupBalance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +43,6 @@ public class GroupDetailActivity extends AppCompatActivity {
 
         groupId = getIntent().getIntExtra("group_id", 0);
         String groupName = getIntent().getStringExtra("group_name");
-        groupBalance = getIntent().getDoubleExtra("group_balance", 0);
 
         setSupportActionBar(binding.toolbar);
         if (getSupportActionBar() != null) {
@@ -48,20 +50,39 @@ public class GroupDetailActivity extends AppCompatActivity {
             getSupportActionBar().setTitle(groupName);
         }
 
-        setupBalance(groupBalance);
-
         adapter = new ExpenseAdapter(new ArrayList<>());
         binding.rvExpenses.setLayoutManager(new LinearLayoutManager(this));
         binding.rvExpenses.setAdapter(adapter);
 
         viewModel = new ViewModelProvider(this).get(GroupDetailViewModel.class);
-        viewModel.getExpenses().observe(this, adapter::updateData);
+
+        viewModel.getExpenses().observe(this, this::onExpensesLoaded);
+        viewModel.getBalance().observe(this, this::updateBalanceHeader);
         viewModel.loadExpenses(groupId);
 
         setupSwipeToDelete();
-
         binding.btnSettlement.setOnClickListener(v -> showSettlement());
         binding.fabAddExpense.setOnClickListener(v -> showAddExpenseDialog());
+    }
+
+    private void onExpensesLoaded(List<Expense> expenses) {
+        adapter.updateData(expenses);
+        boolean isEmpty = expenses == null || expenses.isEmpty();
+        binding.rvExpenses.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
+        binding.tvEmptyExpenses.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+    }
+
+    private void updateBalanceHeader(double balance) {
+        if (balance > 0) {
+            binding.tvBalanceAmount.setText(getString(R.string.label_will_receive, balance));
+            binding.tvBalanceAmount.setTextColor(ContextCompat.getColor(this, R.color.color_positive));
+        } else if (balance < 0) {
+            binding.tvBalanceAmount.setText(getString(R.string.label_need_to_pay, Math.abs(balance)));
+            binding.tvBalanceAmount.setTextColor(ContextCompat.getColor(this, R.color.color_negative));
+        } else {
+            binding.tvBalanceAmount.setText(R.string.label_net_balance_placeholder);
+            binding.tvBalanceAmount.setTextColor(ContextCompat.getColor(this, R.color.color_settled));
+        }
     }
 
     private void setupSwipeToDelete() {
@@ -82,7 +103,7 @@ public class GroupDetailActivity extends AppCompatActivity {
                     @Override
                     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                         int position = viewHolder.getBindingAdapterPosition();
-                        if (position == RecyclerView.NO_ID) return;
+                        if (position == RecyclerView.NO_POSITION) return;
                         Expense deleted = adapter.getItemAt(position);
                         viewModel.deleteExpense(deleted.getId());
 
@@ -104,7 +125,7 @@ public class GroupDetailActivity extends AppCompatActivity {
                             return;
                         }
 
-                        android.view.View itemView = viewHolder.itemView;
+                        View itemView = viewHolder.itemView;
                         Paint paint = new Paint();
                         paint.setColor(bgColor);
 
@@ -132,60 +153,59 @@ public class GroupDetailActivity extends AppCompatActivity {
         DialogAddExpenseBinding dialogBinding = DialogAddExpenseBinding.inflate(getLayoutInflater());
         String today = new SimpleDateFormat("MM/dd", Locale.getDefault()).format(new Date());
 
-        new MaterialAlertDialogBuilder(this)
+        AlertDialog dialog = new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.dialog_title_add_expense)
                 .setView(dialogBinding.getRoot())
-                .setPositiveButton(R.string.btn_confirm, (dialog, which) -> {
-                    String desc = getText(dialogBinding.etDescription);
-                    String payer = getText(dialogBinding.etPayer);
-                    String totalStr = getText(dialogBinding.etTotalAmount);
-                    String shareStr = getText(dialogBinding.etMyShare);
-
-                    if (TextUtils.isEmpty(desc)) {
-                        dialogBinding.tilDescription.setError(getString(R.string.error_field_required));
-                        return;
-                    }
-                    if (TextUtils.isEmpty(payer)) {
-                        dialogBinding.tilPayer.setError(getString(R.string.error_field_required));
-                        return;
-                    }
-
-                    double total, share;
-                    try {
-                        total = Double.parseDouble(totalStr);
-                        share = TextUtils.isEmpty(shareStr) ? total : Double.parseDouble(shareStr);
-                    } catch (NumberFormatException e) {
-                        dialogBinding.tilTotalAmount.setError(getString(R.string.error_amount_invalid));
-                        return;
-                    }
-
-                    viewModel.addExpense(desc, payer, total, share, today);
-                })
+                .setPositiveButton(R.string.btn_confirm, null)
                 .setNegativeButton(R.string.btn_cancel, null)
                 .show();
+
+        // Override positive button to prevent auto-dismiss on validation failure
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            String desc = getText(dialogBinding.etDescription);
+            String payer = getText(dialogBinding.etPayer);
+            String totalStr = getText(dialogBinding.etTotalAmount);
+            String shareStr = getText(dialogBinding.etMyShare);
+
+            dialogBinding.tilDescription.setError(null);
+            dialogBinding.tilPayer.setError(null);
+            dialogBinding.tilTotalAmount.setError(null);
+
+            if (TextUtils.isEmpty(desc)) {
+                dialogBinding.tilDescription.setError(getString(R.string.error_field_required));
+                return;
+            }
+            if (TextUtils.isEmpty(payer)) {
+                dialogBinding.tilPayer.setError(getString(R.string.error_field_required));
+                return;
+            }
+            if (TextUtils.isEmpty(totalStr)) {
+                dialogBinding.tilTotalAmount.setError(getString(R.string.error_field_required));
+                return;
+            }
+
+            double total, share;
+            try {
+                total = Double.parseDouble(totalStr);
+                share = TextUtils.isEmpty(shareStr) ? total : Double.parseDouble(shareStr);
+            } catch (NumberFormatException e) {
+                dialogBinding.tilTotalAmount.setError(getString(R.string.error_amount_invalid));
+                return;
+            }
+
+            dialog.dismiss();
+            viewModel.addExpense(desc, payer, total, share, today);
+        });
     }
 
     private void showSettlement() {
         SettlementBottomSheetFragment sheet =
-                SettlementBottomSheetFragment.newInstance(groupId, groupBalance);
+                SettlementBottomSheetFragment.newInstance(groupId);
         sheet.show(getSupportFragmentManager(), "settlement");
     }
 
-    private String getText(com.google.android.material.textfield.TextInputEditText et) {
+    private String getText(TextInputEditText et) {
         return et.getText() != null ? et.getText().toString().trim() : "";
-    }
-
-    private void setupBalance(double balance) {
-        if (balance > 0) {
-            binding.tvBalanceAmount.setText(getString(R.string.label_will_receive, balance));
-            binding.tvBalanceAmount.setTextColor(ContextCompat.getColor(this, R.color.color_positive));
-        } else if (balance < 0) {
-            binding.tvBalanceAmount.setText(getString(R.string.label_need_to_pay, Math.abs(balance)));
-            binding.tvBalanceAmount.setTextColor(ContextCompat.getColor(this, R.color.color_negative));
-        } else {
-            binding.tvBalanceAmount.setText(R.string.label_net_balance_placeholder);
-            binding.tvBalanceAmount.setTextColor(ContextCompat.getColor(this, R.color.color_settled));
-        }
     }
 
     @Override

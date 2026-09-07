@@ -4,16 +4,16 @@
         "source": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-main-38:\\layout\\activity_main.xml"
     },
     {
-        "merged": "com.example.myapplicationdemo.app-mergeDebugResources-35:/layout/fragment_settlement_bottom_sheet.xml",
-        "source": "com.example.myapplicationdemo.app-main-38:/layout/fragment_settlement_bottom_sheet.xml"
-    },
-    {
-        "merged": "com.example.myapplicationdemo.app-mergeDebugResources-35:/layout/dialog_create_group.xml",
-        "source": "com.example.myapplicationdemo.app-main-38:/layout/dialog_create_group.xml"
+        "merged": "com.example.myapplicationdemo.app-mergeDebugResources-35:/layout/activity_main.xml",
+        "source": "com.example.myapplicationdemo.app-main-38:/layout/activity_main.xml"
     },
     {
         "merged": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-mergeDebugResources-35:\\layout\\item_expense.xml",
         "source": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-main-38:\\layout\\item_expense.xml"
+    },
+    {
+        "merged": "com.example.myapplicationdemo.app-mergeDebugResources-35:/layout/activity_group_detail.xml",
+        "source": "com.example.myapplicationdemo.app-main-38:/layout/activity_group_detail.xml"
     },
     {
         "merged": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-mergeDebugResources-35:\\layout\\activity_register.xml",
@@ -24,12 +24,20 @@
         "source": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-main-38:\\layout\\item_group.xml"
     },
     {
+        "merged": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-mergeDebugResources-35:\\layout\\dialog_add_expense.xml",
+        "source": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-main-38:\\layout\\dialog_add_expense.xml"
+    },
+    {
         "merged": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-mergeDebugResources-35:\\layout\\activity_group_detail.xml",
         "source": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-main-38:\\layout\\activity_group_detail.xml"
     },
     {
-        "merged": "com.example.myapplicationdemo.app-mergeDebugResources-35:/layout/dialog_add_expense.xml",
-        "source": "com.example.myapplicationdemo.app-main-38:/layout/dialog_add_expense.xml"
+        "merged": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-mergeDebugResources-35:\\layout\\fragment_settlement_bottom_sheet.xml",
+        "source": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-main-38:\\layout\\fragment_settlement_bottom_sheet.xml"
+    },
+    {
+        "merged": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-mergeDebugResources-35:\\layout\\dialog_create_group.xml",
+        "source": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-main-38:\\layout\\dialog_create_group.xml"
     },
     {
         "merged": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-mergeDebugResources-35:\\layout\\activity_login.xml",

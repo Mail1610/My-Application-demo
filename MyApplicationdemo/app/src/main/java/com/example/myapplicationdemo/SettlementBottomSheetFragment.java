@@ -13,7 +13,6 @@ import com.example.myapplicationdemo.model.Expense;
 import com.example.myapplicationdemo.repository.ExpenseRepository;
 import com.example.myapplicationdemo.utils.SessionManager;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,13 +20,11 @@ import java.util.Map;
 public class SettlementBottomSheetFragment extends BottomSheetDialogFragment {
 
     private static final String ARG_GROUP_ID = "group_id";
-    private static final String ARG_BALANCE = "balance";
 
-    public static SettlementBottomSheetFragment newInstance(int groupId, double balance) {
+    public static SettlementBottomSheetFragment newInstance(int groupId) {
         SettlementBottomSheetFragment f = new SettlementBottomSheetFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_GROUP_ID, groupId);
-        args.putDouble(ARG_BALANCE, balance);
         f.setArguments(args);
         return f;
     }
@@ -45,12 +42,40 @@ public class SettlementBottomSheetFragment extends BottomSheetDialogFragment {
         super.onViewCreated(view, savedInstanceState);
 
         int groupId = requireArguments().getInt(ARG_GROUP_ID);
-        double balance = requireArguments().getDouble(ARG_BALANCE);
-
         TextView tvNetBalance = view.findViewById(R.id.tv_net_balance);
         LinearLayout llItems = view.findViewById(R.id.ll_settlement_items);
         TextView tvSettled = view.findViewById(R.id.tv_settled);
 
+        String myName = new SessionManager(requireContext()).getUsername();
+        ExpenseRepository repo = new ExpenseRepository();
+
+        new Thread(() -> {
+            List<Expense> expenses = repo.getByGroupId(groupId);
+            if (!isAdded()) return;
+            requireActivity().runOnUiThread(() ->
+                    renderSettlement(tvNetBalance, llItems, tvSettled, expenses, myName));
+        }).start();
+    }
+
+    private void renderSettlement(TextView tvNetBalance, LinearLayout llItems,
+                                  TextView tvSettled, List<Expense> expenses, String myName) {
+        // Compute balance from actual expenses
+        double balance = 0;
+        Map<String, Double> iOwe = new LinkedHashMap<>();
+        double othersOweMe = 0;
+
+        for (Expense e : expenses) {
+            if (myName.equals(e.getPayer())) {
+                double credit = e.getTotalAmount() - e.getMyShare();
+                othersOweMe += credit;
+                balance += credit;
+            } else {
+                iOwe.merge(e.getPayer(), e.getMyShare(), Double::sum);
+                balance -= e.getMyShare();
+            }
+        }
+
+        // Update net balance header
         if (balance > 0) {
             tvNetBalance.setText(getString(R.string.label_balance_net_positive, balance));
             tvNetBalance.setTextColor(ContextCompat.getColor(requireContext(), R.color.color_positive));
@@ -60,36 +85,6 @@ public class SettlementBottomSheetFragment extends BottomSheetDialogFragment {
         } else {
             tvNetBalance.setText(R.string.label_net_balance_placeholder);
             tvNetBalance.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
-        }
-
-        String myName = new SessionManager(requireContext()).getUsername();
-        ExpenseRepository repo = new ExpenseRepository();
-
-        new Thread(() -> {
-            List<Expense> expenses = repo.getByGroupId(groupId);
-            if (!isAdded()) return;
-
-            requireActivity().runOnUiThread(() ->
-                    renderSettlement(llItems, tvSettled, expenses, myName));
-        }).start();
-    }
-
-    private void renderSettlement(LinearLayout llItems, TextView tvSettled,
-                                  List<Expense> expenses, String myName) {
-        if (expenses.isEmpty()) {
-            tvSettled.setVisibility(View.VISIBLE);
-            return;
-        }
-
-        Map<String, Double> iOwe = new LinkedHashMap<>();
-        double othersOweMe = 0;
-
-        for (Expense e : expenses) {
-            if (e.getPayer().equals(myName)) {
-                othersOweMe += e.getTotalAmount() - e.getMyShare();
-            } else {
-                iOwe.merge(e.getPayer(), e.getMyShare(), Double::sum);
-            }
         }
 
         boolean hasItems = false;

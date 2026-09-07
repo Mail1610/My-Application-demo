@@ -84,7 +84,9 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
         void bind(Group group, OnGroupDeleteListener deleteListener) {
             Context ctx = itemView.getContext();
 
-            binding.tvGroupInitial.setText(group.getName().substring(0, 1));
+            String name = group.getName();
+            String initial = (name != null && !name.isEmpty()) ? name.substring(0, 1) : "?";
+            binding.tvGroupInitial.setText(initial);
             GradientDrawable circle = new GradientDrawable();
             circle.setShape(GradientDrawable.OVAL);
             circle.setColor(AVATAR_COLORS[group.getId() % AVATAR_COLORS.length]);
