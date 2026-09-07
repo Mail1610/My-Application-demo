@@ -1,7 +1,12 @@
 package com.example.myapplicationdemo;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
@@ -10,6 +15,7 @@ import com.example.myapplicationdemo.adapter.GroupAdapter;
 import com.example.myapplicationdemo.databinding.ActivityMainBinding;
 import com.example.myapplicationdemo.databinding.DialogCreateGroupBinding;
 import com.example.myapplicationdemo.model.Group;
+import com.example.myapplicationdemo.utils.SessionManager;
 import com.example.myapplicationdemo.viewmodel.MainViewModel;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import java.util.ArrayList;
@@ -40,25 +46,64 @@ public class MainActivity extends AppCompatActivity {
         binding.fabAddGroup.setOnClickListener(v -> showCreateGroupDialog());
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        viewModel.loadGroups();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.action_logout) {
+            showLogoutDialog();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void showLogoutDialog() {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.dialog_title_logout)
+                .setMessage(R.string.dialog_msg_logout)
+                .setPositiveButton(R.string.btn_confirm, (dialog, which) -> logout())
+                .setNegativeButton(R.string.btn_cancel, null)
+                .show();
+    }
+
+    private void logout() {
+        new SessionManager(this).clearSession();
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+    }
+
     private void showCreateGroupDialog() {
         DialogCreateGroupBinding dialogBinding = DialogCreateGroupBinding.inflate(getLayoutInflater());
 
-        new MaterialAlertDialogBuilder(this)
+        androidx.appcompat.app.AlertDialog dialog = new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.dialog_title_create_group)
                 .setView(dialogBinding.getRoot())
-                .setPositiveButton(R.string.btn_confirm, (dialog, which) -> {
-                    String name = "";
-                    if (dialogBinding.etGroupName.getText() != null) {
-                        name = dialogBinding.etGroupName.getText().toString().trim();
-                    }
-                    if (TextUtils.isEmpty(name)) {
-                        dialogBinding.tilGroupName.setError(getString(R.string.error_field_required));
-                        return;
-                    }
-                    viewModel.addGroup(name);
-                })
+                .setPositiveButton(R.string.btn_confirm, null)
                 .setNegativeButton(R.string.btn_cancel, null)
                 .show();
+
+        // Override to prevent auto-dismiss on validation failure
+        dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            String name = dialogBinding.etGroupName.getText() != null
+                    ? dialogBinding.etGroupName.getText().toString().trim() : "";
+            if (TextUtils.isEmpty(name)) {
+                dialogBinding.tilGroupName.setError(getString(R.string.error_field_required));
+                return;
+            }
+            dialog.dismiss();
+            viewModel.addGroup(name);
+        });
     }
 
     private void showDeleteGroupDialog(Group group) {
@@ -74,6 +119,10 @@ public class MainActivity extends AppCompatActivity {
     private void onGroupsLoaded(List<Group> groups) {
         adapter.updateData(groups);
         setupSummaryCard(groups);
+
+        boolean isEmpty = groups == null || groups.isEmpty();
+        binding.rvGroups.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
+        binding.tvEmptyGroups.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
     }
 
     private void setupSummaryCard(List<Group> groups) {
