@@ -67,7 +67,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/label_my_balance"
                 android:textColor="@color/color_text_hint"
-                android:textSize="10sp"
+                android:textSize="11sp"
                 android:gravity="end" />
 
             <TextView

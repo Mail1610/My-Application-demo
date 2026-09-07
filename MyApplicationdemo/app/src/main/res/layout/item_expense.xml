@@ -35,7 +35,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/color_text_hint"
-                android:textSize="10sp" />
+                android:textSize="11sp" />
 
             <TextView
                 android:id="@+id/tv_date_day"
@@ -87,6 +87,7 @@
             android:gravity="end|center_vertical"
             android:orientation="vertical"
             android:paddingVertical="14dp"
+            android:paddingStart="0dp"
             android:paddingEnd="16dp">
 
             <TextView

@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.myapplicationdemo.GroupDetailActivity;
 import com.example.myapplicationdemo.R;
@@ -28,9 +29,22 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
     }
 
     public void updateData(List<Group> newGroups) {
+        DiffUtil.DiffResult result = DiffUtil.calculateDiff(new DiffUtil.Callback() {
+            @Override public int getOldListSize() { return groups.size(); }
+            @Override public int getNewListSize() { return newGroups.size(); }
+            @Override public boolean areItemsTheSame(int o, int n) {
+                return groups.get(o).getId() == newGroups.get(n).getId();
+            }
+            @Override public boolean areContentsTheSame(int o, int n) {
+                Group old = groups.get(o), neu = newGroups.get(n);
+                return old.getName().equals(neu.getName())
+                        && old.getMemberCount() == neu.getMemberCount()
+                        && Double.compare(old.getMyBalance(), neu.getMyBalance()) == 0;
+            }
+        });
         groups.clear();
         groups.addAll(newGroups);
-        notifyDataSetChanged();
+        result.dispatchUpdatesTo(this);
     }
 
     @NonNull
@@ -47,9 +61,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
     }
 
     @Override
-    public int getItemCount() {
-        return groups.size();
-    }
+    public int getItemCount() { return groups.size(); }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -63,7 +75,6 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
         void bind(Group group) {
             Context ctx = itemView.getContext();
 
-            // Avatar
             binding.tvGroupInitial.setText(group.getName().substring(0, 1));
             GradientDrawable circle = new GradientDrawable();
             circle.setShape(GradientDrawable.OVAL);
@@ -71,17 +82,17 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
             binding.tvGroupInitial.setBackground(circle);
 
             binding.tvGroupName.setText(group.getName());
-            binding.tvMemberCount.setText(group.getMemberCount() + " " + ctx.getString(R.string.label_members));
+            binding.tvMemberCount.setText(ctx.getString(R.string.label_member_count, group.getMemberCount()));
 
             double balance = group.getMyBalance();
             if (balance > 0) {
-                binding.tvBalance.setText(String.format("收 $%.0f", balance));
+                binding.tvBalance.setText(ctx.getString(R.string.label_balance_positive, balance));
                 binding.tvBalance.setTextColor(ContextCompat.getColor(ctx, R.color.color_positive));
             } else if (balance < 0) {
-                binding.tvBalance.setText(String.format("付 $%.0f", Math.abs(balance)));
+                binding.tvBalance.setText(ctx.getString(R.string.label_balance_negative, Math.abs(balance)));
                 binding.tvBalance.setTextColor(ContextCompat.getColor(ctx, R.color.color_negative));
             } else {
-                binding.tvBalance.setText("已結清");
+                binding.tvBalance.setText(R.string.label_my_settlement);
                 binding.tvBalance.setTextColor(ContextCompat.getColor(ctx, R.color.color_settled));
             }
 

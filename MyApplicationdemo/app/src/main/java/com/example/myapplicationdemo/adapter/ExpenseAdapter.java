@@ -1,9 +1,12 @@
 package com.example.myapplicationdemo.adapter;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
+import com.example.myapplicationdemo.R;
 import com.example.myapplicationdemo.databinding.ItemExpenseBinding;
 import com.example.myapplicationdemo.model.Expense;
 import java.util.ArrayList;
@@ -22,9 +25,22 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHold
     }
 
     public void updateData(List<Expense> newExpenses) {
+        DiffUtil.DiffResult result = DiffUtil.calculateDiff(new DiffUtil.Callback() {
+            @Override public int getOldListSize() { return expenses.size(); }
+            @Override public int getNewListSize() { return newExpenses.size(); }
+            @Override public boolean areItemsTheSame(int o, int n) {
+                return expenses.get(o).getId() == newExpenses.get(n).getId();
+            }
+            @Override public boolean areContentsTheSame(int o, int n) {
+                Expense old = expenses.get(o), neu = newExpenses.get(n);
+                return old.getDescription().equals(neu.getDescription())
+                        && Double.compare(old.getTotalAmount(), neu.getTotalAmount()) == 0
+                        && Double.compare(old.getMyShare(), neu.getMyShare()) == 0;
+            }
+        });
         expenses.clear();
         expenses.addAll(newExpenses);
-        notifyDataSetChanged();
+        result.dispatchUpdatesTo(this);
     }
 
     @NonNull
@@ -41,9 +57,7 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHold
     }
 
     @Override
-    public int getItemCount() {
-        return expenses.size();
-    }
+    public int getItemCount() { return expenses.size(); }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -55,13 +69,12 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHold
         }
 
         void bind(Expense expense, int position) {
-            // Left accent strip color
+            Context ctx = itemView.getContext();
             binding.viewAccent.setBackgroundColor(ACCENT_COLORS[position % ACCENT_COLORS.length]);
 
-            // Split date "08/29" → month="08", day="29"
             String[] parts = expense.getDate().split("/");
             if (parts.length == 2) {
-                binding.tvDateMonth.setText(parts[0] + "月");
+                binding.tvDateMonth.setText(ctx.getString(R.string.label_month_format, parts[0]));
                 binding.tvDateDay.setText(parts[1]);
             } else {
                 binding.tvDateMonth.setText("");
@@ -69,9 +82,9 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHold
             }
 
             binding.tvDescription.setText(expense.getDescription());
-            binding.tvPayer.setText(expense.getPayer() + " 付款");
-            binding.tvAmount.setText(String.format("$%.0f", expense.getTotalAmount()));
-            binding.tvMyShare.setText(String.format("我分攤 $%.0f", expense.getMyShare()));
+            binding.tvPayer.setText(ctx.getString(R.string.label_paid_by_user, expense.getPayer()));
+            binding.tvAmount.setText(ctx.getString(R.string.label_amount_format, expense.getTotalAmount()));
+            binding.tvMyShare.setText(ctx.getString(R.string.label_my_share_amount, expense.getMyShare()));
         }
     }
 }

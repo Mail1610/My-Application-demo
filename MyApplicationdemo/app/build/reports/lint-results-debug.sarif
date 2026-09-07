@@ -1,0 +1,254 @@
+{
+    "$schema" : "https://docs.oasis-open.org/sarif/sarif/v2.1.0/errata01/os/schemas/sarif-schema-2.1.0.json",
+    "version" : "2.1.0",
+    "runs" : [
+        {
+            "tool": {
+                "driver": {
+                    "name": "Android Lint",
+                    "fullName": "Android Lint (in gradle)",
+                    "version": "9.3.2",
+                    "semanticVersion": "9.3.2",
+                    "organization": "Google",
+                    "informationUri": "https://developer.android.com/studio/write/lint",
+                    "fullDescription": {
+                        "text": "Static analysis originally for Android source code but now performing general analysis"
+                    },
+                    "language": "en-US",
+                    "rules": [
+                        {
+                            "id": "NewerVersionAvailable",
+                            "shortDescription": {
+                                "text": "Newer Library Versions Available"
+                            },
+                            "fullDescription": {
+                                "text": "This detector checks with a central repository to see if there are newer versions available for the dependencies used by this project. This is similar to the GradleDependency check, which checks for newer versions available in the Android SDK tools and libraries, but this works with any MavenCentral dependency, and connects to the library every time, which makes it more flexible but also much slower.",
+                                "markdown": "This detector checks with a central repository to see if there are newer versions available for the dependencies used by this project. This is similar to the `GradleDependency` check, which checks for newer versions available in the Android SDK tools and libraries, but this works with any MavenCentral dependency, and connects to the library every time, which makes it more flexible but also **much** slower."
+                            },
+                            "defaultConfiguration": {
+                                "level": "warning",
+                                "rank": 70
+                            },
+                            "properties": {
+                                "tags": [
+                                    "Correctness"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            },
+            "originalUriBaseIds": {
+                "%SRCROOT%": {
+                    "uri": "file:///C:/Users/ian/AndroidStudioProjects/My-Application-demo/MyApplicationdemo/"
+                }
+            },
+            "results": [
+                {
+                    "ruleId": "NewerVersionAvailable",
+                    "ruleIndex": 0,
+                    "message": {
+                        "text": "A newer version of com.squareup.retrofit2:converter-gson than 2.9.0 is available: 3.0.0"
+                    },
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uriBaseId": "%SRCROOT%",
+                                    "uri": "gradle/libs.versions.toml"
+                                },
+                                "region": {
+                                    "startLine": 11,
+                                    "startColumn": 12,
+                                    "endLine": 11,
+                                    "endColumn": 19,
+                                    "charOffset": 208,
+                                    "charLength": 7,
+                                    "snippet": {
+                                        "text": "\"2.9.0\""
+                                    }
+                                },
+                                "contextRegion": {
+                                    "startLine": 9,
+                                    "endLine": 14,
+                                    "snippet": {
+                                        "text": "room = \"2.8.4\"\r\nlifecycle = \"2.11.0\"\r\nretrofit = \"2.9.0\"\r\nokhttp = \"4.12.0\"\r\n\r\n"
+                                    }
+                                }
+                            }
+                        }
+                    ],
+                    "fixes": [
+                        {
+                            "description": {
+                                "text": "Change to 3.0.0"
+                            },
+                            "artifactChanges": [
+                                {
+                                    "artifactLocation": {
+                                        "uriBaseId": "%SRCROOT%",
+                                        "uri": "gradle/libs.versions.toml"
+                                    },
+                                    "replacements": [
+                                        {
+                                            "deletedRegion": {
+                                                "startLine": 11,
+                                                "startColumn": 13,
+                                                "charOffset": 209,
+                                                "endLine": 11,
+                                                "endColumn": 18,
+                                                "charLength": 5
+                                            },
+                                            "insertedContent": {
+                                                "text": "3.0.0\n"
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ],
+                    "partialFingerprints": {
+                        "sourceContext/v1": "c56249ce5d044e4f"
+                    }
+                },
+                {
+                    "ruleId": "NewerVersionAvailable",
+                    "ruleIndex": 0,
+                    "message": {
+                        "text": "A newer version of com.squareup.retrofit2:retrofit than 2.9.0 is available: 3.0.0"
+                    },
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uriBaseId": "%SRCROOT%",
+                                    "uri": "gradle/libs.versions.toml"
+                                },
+                                "region": {
+                                    "startLine": 11,
+                                    "startColumn": 12,
+                                    "endLine": 11,
+                                    "endColumn": 19,
+                                    "charOffset": 208,
+                                    "charLength": 7,
+                                    "snippet": {
+                                        "text": "\"2.9.0\""
+                                    }
+                                },
+                                "contextRegion": {
+                                    "startLine": 9,
+                                    "endLine": 14,
+                                    "snippet": {
+                                        "text": "room = \"2.8.4\"\r\nlifecycle = \"2.11.0\"\r\nretrofit = \"2.9.0\"\r\nokhttp = \"4.12.0\"\r\n\r\n"
+                                    }
+                                }
+                            }
+                        }
+                    ],
+                    "fixes": [
+                        {
+                            "description": {
+                                "text": "Change to 3.0.0"
+                            },
+                            "artifactChanges": [
+                                {
+                                    "artifactLocation": {
+                                        "uriBaseId": "%SRCROOT%",
+                                        "uri": "gradle/libs.versions.toml"
+                                    },
+                                    "replacements": [
+                                        {
+                                            "deletedRegion": {
+                                                "startLine": 11,
+                                                "startColumn": 13,
+                                                "charOffset": 209,
+                                                "endLine": 11,
+                                                "endColumn": 18,
+                                                "charLength": 5
+                                            },
+                                            "insertedContent": {
+                                                "text": "3.0.0\n"
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ],
+                    "partialFingerprints": {
+                        "sourceContext/v1": "c56249ce5d044e4f"
+                    }
+                },
+                {
+                    "ruleId": "NewerVersionAvailable",
+                    "ruleIndex": 0,
+                    "message": {
+                        "text": "A newer version of com.squareup.okhttp3:okhttp than 4.12.0 is available: 5.5.0"
+                    },
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uriBaseId": "%SRCROOT%",
+                                    "uri": "gradle/libs.versions.toml"
+                                },
+                                "region": {
+                                    "startLine": 12,
+                                    "startColumn": 10,
+                                    "endLine": 12,
+                                    "endColumn": 18,
+                                    "charOffset": 226,
+                                    "charLength": 8,
+                                    "snippet": {
+                                        "text": "\"4.12.0\""
+                                    }
+                                },
+                                "contextRegion": {
+                                    "startLine": 10,
+                                    "endLine": 15,
+                                    "snippet": {
+                                        "text": "lifecycle = \"2.11.0\"\r\nretrofit = \"2.9.0\"\r\nokhttp = \"4.12.0\"\r\n\r\n[libraries]\r\n"
+                                    }
+                                }
+                            }
+                        }
+                    ],
+                    "fixes": [
+                        {
+                            "description": {
+                                "text": "Change to 5.5.0"
+                            },
+                            "artifactChanges": [
+                                {
+                                    "artifactLocation": {
+                                        "uriBaseId": "%SRCROOT%",
+                                        "uri": "gradle/libs.versions.toml"
+                                    },
+                                    "replacements": [
+                                        {
+                                            "deletedRegion": {
+                                                "startLine": 12,
+                                                "startColumn": 11,
+                                                "charOffset": 227,
+                                                "endLine": 12,
+                                                "endColumn": 17,
+                                                "charLength": 6
+                                            },
+                                            "insertedContent": {
+                                                "text": "5.5.0\n"
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ],
+                    "partialFingerprints": {
+                        "sourceContext/v1": "311e78a7d8f50232"
+                    }
+                }
+            ]
+        }
+    ]
+}

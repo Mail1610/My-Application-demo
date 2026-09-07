@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<incidents format="6" by="lint 9.3.2" type="partial_results">
+    <map id="UnsafeIntentLaunch">
+            <map id="unprotected">
+                <entry
+                    name="com.example.myapplicationdemo.LoginActivity"
+                    boolean="true"/>
+            </map>
+    </map>
+    <map id="UnusedResources">
+        <entry
+            name="model"
+            string="attr[actionBarSize(R),actionBarItemBackground(R),colorPrimaryVariant(R)],color[white(U),color_text_secondary(U),color_primary(U),color_text_primary(U),color_surface(U),color_text_hint(U),color_bg(U),color_primary_dark(U),color_secondary(U),color_accent(U),color_positive(U),color_negative(U),color_settled(U)],drawable[bg_circle(U),bg_gradient_header(U),ic_add(U),ic_arrow_back(U),ic_launcher_background(U),ic_launcher_foreground(U),ic_launcher_foreground_1(R)],id[toolbar(U),tv_balance_amount(D),btn_settlement(D),rv_expenses(D),fab_add_expense(D),til_email(D),et_email(D),til_password(D),et_password(D),btn_login(D),progress_bar(D),tv_go_to_register(D),tv_net_balance(D),tv_groups_summary(D),rv_groups(D),fab_add_group(D),btn_back(D),til_username(D),et_username(D),til_confirm_password(D),et_confirm_password(D),btn_register(D),tv_go_to_login(D),view_accent(D),tv_date_month(D),tv_date_day(D),tv_description(D),tv_payer(D),tv_amount(D),tv_my_share(D),tv_date(D),tv_group_initial(D),tv_group_name(D),tv_member_count(D),tv_balance(D)],layout[activity_group_detail(U),activity_login(U),activity_main(U),activity_register(U),item_expense(U),item_group(U)],mipmap[ic_launcher(U),ic_launcher_round(U)],string[app_name(U),label_my_settlement(U),btn_view_settlement(U),appbar_scrolling_view_behavior(R),label_expense_list_title(U),btn_add_expense(U),app_tagline(U),label_welcome_back(U),label_login_subtitle(U),hint_email(U),hint_password(U),btn_login(U),go_to_register(U),label_net_balance_header(U),label_net_balance_placeholder(U),btn_add_group(U),btn_back(U),title_register(U),label_register_subtitle(U),hint_username(U),hint_confirm_password(U),btn_register(U),go_to_login(U),label_my_balance(U),label_groups_summary(U),label_balance_positive(U),label_balance_negative(U),label_balance_net_positive(U),label_balance_net_negative(U),label_will_receive(U),label_need_to_pay(U),label_amount_format(U),label_my_share_amount(U),label_member_count(U),label_month_format(U),label_paid_by_user(U)],style[Theme_MyApplicationDemo(U),Theme_MyApplicationDemo_Auth(U),Widget_MaterialComponents_Button_OutlinedButton(R),Widget_MaterialComponents_TextInputLayout_OutlinedBox(R),TextAppearance_MaterialComponents_Headline6(R),Theme_MaterialComponents_DayNight_DarkActionBar(R),Widget_App_Button(U),Theme_MaterialComponents_DayNight_NoActionBar(R),Widget_MaterialComponents_Button(R)],xml[data_extraction_rules(U),backup_rules(U)];10^3,15^16,3a^11^0^13^3^43^44^68^45^46^4^47^12,3b^11^10^42^5^3^48^49^6^4a^4^4b^69^4c^4d^4e,3c^11^0^6a^3^4f^50^45^51^12,3d^11^1^52^13^53^3^54^55^69^4b^4c^56^57^58^5,3e^7^5^8^6^9^4,3f^7^10^3^6^4^59^8,40^14^15,41^14^15,66^6b^5^a^3^b^6c^c^2,67^6d^5^a^3^b^9^6c,6c^6e;;;"/>
+    </map>
+
+</incidents>
