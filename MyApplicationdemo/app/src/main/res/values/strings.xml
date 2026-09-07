@@ -67,4 +67,11 @@
     <string name="btn_cancel">取消</string>
     <string name="error_field_required">此欄位為必填</string>
     <string name="error_amount_invalid">請輸入有效金額</string>
+
+    <!-- Delete -->
+    <string name="dialog_title_delete_group">刪除群組</string>
+    <string name="dialog_msg_delete_group">確定要刪除「%1$s」？此群組的所有支出也會一併刪除。</string>
+    <string name="btn_delete">刪除</string>
+    <string name="msg_expense_deleted">已刪除支出</string>
+    <string name="btn_undo">復原</string>
 </resources>

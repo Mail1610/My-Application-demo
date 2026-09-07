@@ -34,6 +34,17 @@ public class MainViewModel extends AndroidViewModel {
         }).start();
     }
 
+    public void deleteGroup(int groupId) {
+        new Thread(() -> {
+            try {
+                repository.deleteGroup(groupId);
+                groups.postValue(repository.getAll());
+            } catch (Exception e) {
+                LogUtils.error("刪除群組失敗", e);
+            }
+        }).start();
+    }
+
     public void addGroup(String name) {
         new Thread(() -> {
             try {

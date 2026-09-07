@@ -15,6 +15,7 @@ int drawable bg_circle 0x0
 int drawable bg_gradient_header 0x0
 int drawable ic_add 0x0
 int drawable ic_arrow_back 0x0
+int drawable ic_delete 0x0
 int drawable ic_launcher_background 0x0
 int drawable ic_launcher_foreground 0x0
 int id btn_back 0x0
@@ -82,11 +83,15 @@ int string btn_add_group 0x0
 int string btn_back 0x0
 int string btn_cancel 0x0
 int string btn_confirm 0x0
+int string btn_delete 0x0
 int string btn_login 0x0
 int string btn_register 0x0
+int string btn_undo 0x0
 int string btn_view_settlement 0x0
+int string dialog_msg_delete_group 0x0
 int string dialog_title_add_expense 0x0
 int string dialog_title_create_group 0x0
+int string dialog_title_delete_group 0x0
 int string error_amount_invalid 0x0
 int string error_field_required 0x0
 int string go_to_login 0x0
@@ -123,6 +128,7 @@ int string label_settlement_others_owe 0x0
 int string label_settlement_settled 0x0
 int string label_welcome_back 0x0
 int string label_will_receive 0x0
+int string msg_expense_deleted 0x0
 int string title_register 0x0
 int string title_settlement 0x0
 int style Theme_MyApplicationDemo 0x0

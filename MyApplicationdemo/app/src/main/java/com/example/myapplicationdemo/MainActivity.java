@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(binding.toolbar);
 
         adapter = new GroupAdapter(new ArrayList<>());
+        adapter.setOnGroupDeleteListener(this::showDeleteGroupDialog);
         binding.rvGroups.setLayoutManager(new LinearLayoutManager(this));
         binding.rvGroups.setAdapter(adapter);
 
@@ -56,6 +57,16 @@ public class MainActivity extends AppCompatActivity {
                     }
                     viewModel.addGroup(name);
                 })
+                .setNegativeButton(R.string.btn_cancel, null)
+                .show();
+    }
+
+    private void showDeleteGroupDialog(Group group) {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.dialog_title_delete_group)
+                .setMessage(getString(R.string.dialog_msg_delete_group, group.getName()))
+                .setPositiveButton(R.string.btn_delete, (dialog, which) ->
+                        viewModel.deleteGroup(group.getId()))
                 .setNegativeButton(R.string.btn_cancel, null)
                 .show();
     }

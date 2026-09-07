@@ -22,6 +22,9 @@ public interface GroupDao {
     @Query("SELECT COALESCE(MAX(id), 0) FROM groups")
     int getMaxId();
 
+    @Query("DELETE FROM groups WHERE id = :groupId")
+    void deleteById(int groupId);
+
     @Query("DELETE FROM groups")
     void deleteAll();
 }

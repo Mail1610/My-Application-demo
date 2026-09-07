@@ -23,6 +23,14 @@ public class ExpenseRepository {
         return expenses;
     }
 
+    public void deleteExpense(int expenseId) {
+        dao.deleteById(expenseId);
+    }
+
+    public void restoreExpense(Expense expense) {
+        dao.insert(expense);
+    }
+
     public Expense addExpense(int groupId, String description, String payer,
                               double totalAmount, double myShare, String date) {
         int newId = dao.getMaxId() + 1;

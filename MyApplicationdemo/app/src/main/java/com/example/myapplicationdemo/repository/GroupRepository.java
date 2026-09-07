@@ -23,6 +23,11 @@ public class GroupRepository {
         return groups;
     }
 
+    public void deleteGroup(int groupId) {
+        dao.deleteById(groupId);
+        MyApplication.getDatabase().expenseDao().deleteByGroupId(groupId);
+    }
+
     public Group addGroup(String name) {
         int newId = dao.getMaxId() + 1;
         Group group = new Group(newId, name, 1, 0.0);

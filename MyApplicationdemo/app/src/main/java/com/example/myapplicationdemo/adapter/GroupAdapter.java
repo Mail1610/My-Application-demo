@@ -22,10 +22,19 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
         0xFF4361EE, 0xFF7B2FBE, 0xFFE63946, 0xFF00A878, 0xFFF4A261
     };
 
+    public interface OnGroupDeleteListener {
+        void onDelete(Group group);
+    }
+
     private final List<Group> groups = new ArrayList<>();
+    private OnGroupDeleteListener deleteListener;
 
     public GroupAdapter(List<Group> groups) {
         this.groups.addAll(groups);
+    }
+
+    public void setOnGroupDeleteListener(OnGroupDeleteListener listener) {
+        this.deleteListener = listener;
     }
 
     public void updateData(List<Group> newGroups) {
@@ -57,7 +66,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.bind(groups.get(position));
+        holder.bind(groups.get(position), deleteListener);
     }
 
     @Override
@@ -72,7 +81,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
             this.binding = binding;
         }
 
-        void bind(Group group) {
+        void bind(Group group, OnGroupDeleteListener deleteListener) {
             Context ctx = itemView.getContext();
 
             binding.tvGroupInitial.setText(group.getName().substring(0, 1));
@@ -102,6 +111,11 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
                 intent.putExtra("group_name", group.getName());
                 intent.putExtra("group_balance", group.getMyBalance());
                 ctx.startActivity(intent);
+            });
+
+            itemView.setOnLongClickListener(v -> {
+                if (deleteListener != null) deleteListener.onDelete(group);
+                return true;
             });
         }
     }

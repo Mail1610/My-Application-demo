@@ -20,11 +20,15 @@
     <string name="btn_back">返回</string>
     <string name="btn_cancel">取消</string>
     <string name="btn_confirm">確認</string>
+    <string name="btn_delete">刪除</string>
     <string name="btn_login">登入</string>
     <string name="btn_register">建立帳號</string>
+    <string name="btn_undo">復原</string>
     <string name="btn_view_settlement">查看結算</string>
+    <string name="dialog_msg_delete_group">確定要刪除「%1$s」？此群組的所有支出也會一併刪除。</string>
     <string name="dialog_title_add_expense">新增支出</string>
     <string name="dialog_title_create_group">建立群組</string>
+    <string name="dialog_title_delete_group">刪除群組</string>
     <string name="error_amount_invalid">請輸入有效金額</string>
     <string name="error_field_required">此欄位為必填</string>
     <string name="go_to_login">已有帳號？返回登入</string>
@@ -61,6 +65,7 @@
     <string name="label_settlement_settled">此群組已結清 ✓</string>
     <string name="label_welcome_back">歡迎回來</string>
     <string name="label_will_receive">你將收到 $%1$.0f</string>
+    <string name="msg_expense_deleted">已刪除支出</string>
     <string name="title_register">建立帳號</string>
     <string name="title_settlement">結算清單</string>
     <style name="Theme.MyApplicationDemo" parent="Theme.MaterialComponents.DayNight.DarkActionBar">

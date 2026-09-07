@@ -2589,8 +2589,10 @@
     <string name="btn_back">返回</string>
     <string name="btn_cancel">取消</string>
     <string name="btn_confirm">確認</string>
+    <string name="btn_delete">刪除</string>
     <string name="btn_login">登入</string>
     <string name="btn_register">建立帳號</string>
+    <string name="btn_undo">復原</string>
     <string name="btn_view_settlement">查看結算</string>
     <string name="call_notification_answer_action">Answer</string>
     <string name="call_notification_answer_video_action">Video</string>
@@ -2603,8 +2605,10 @@
     <string name="character_counter_overflowed_content_description">Character limit exceeded %1$d of %2$d</string>
     <string name="character_counter_pattern" translatable="false">%1$d/%2$d</string>
     <string name="clear_text_end_icon_content_description">Clear text</string>
+    <string name="dialog_msg_delete_group">確定要刪除「%1$s」？此群組的所有支出也會一併刪除。</string>
     <string name="dialog_title_add_expense">新增支出</string>
     <string name="dialog_title_create_group">建立群組</string>
+    <string name="dialog_title_delete_group">刪除群組</string>
     <string description="Screen reader announcement for when a checkbox is on error. [CHAR LIMIT=NONE]" name="error_a11y_label">
     Error: invalid
   </string>
@@ -2703,6 +2707,7 @@
     <string description="Title for the dialog with a time picker. [CHAR_LIMIT=32]" name="material_timepicker_select_time">Select time</string>
     <string name="material_timepicker_text_input_mode_description">Switch to text input mode for the time input.</string>
     <string name="material_timepicker_text_input_mode_tooltip">Switch to text input mode</string>
+    <string name="msg_expense_deleted">已刪除支出</string>
     <string description="Content description for new notification (no number count) [CHAR_LIMIT=NONE]" name="mtrl_badge_numberless_content_description">New notification</string>
     <string description="An announcement for the collapsed menu state of the trailing button in split button [CHAR LIMIT=NONE]" name="mtrl_button_collapsed_content_description">Collapsed</string>
     <string description="An announcement for the expanded menu state of the trailing button in split button [CHAR LIMIT=NONE]" name="mtrl_button_expanded_content_description">Expanded</string>

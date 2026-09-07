@@ -16,12 +16,16 @@
         "source": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-main-38:\\mipmap-anydpi-v26\\ic_launcher.xml"
     },
     {
-        "merged": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-debug-36:\\mipmap-xxxhdpi_ic_launcher.webp.flat",
-        "source": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-main-38:\\mipmap-xxxhdpi\\ic_launcher.webp"
+        "merged": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-debug-36:\\layout_dialog_add_expense.xml.flat",
+        "source": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-main-38:\\layout\\dialog_add_expense.xml"
     },
     {
         "merged": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-debug-36:\\mipmap-hdpi_ic_launcher.webp.flat",
         "source": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-main-38:\\mipmap-hdpi\\ic_launcher.webp"
+    },
+    {
+        "merged": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-debug-36:\\mipmap-xxxhdpi_ic_launcher.webp.flat",
+        "source": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-main-38:\\mipmap-xxxhdpi\\ic_launcher.webp"
     },
     {
         "merged": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-debug-36:\\xml_backup_rules.xml.flat",
@@ -34,6 +38,10 @@
     {
         "merged": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-debug-36:\\xml_data_extraction_rules.xml.flat",
         "source": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-main-38:\\xml\\data_extraction_rules.xml"
+    },
+    {
+        "merged": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-debug-36:\\layout_dialog_create_group.xml.flat",
+        "source": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-main-38:\\layout\\dialog_create_group.xml"
     },
     {
         "merged": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-debug-36:\\drawable_bg_gradient_header.xml.flat",
@@ -72,20 +80,16 @@
         "source": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-main-38:\\mipmap-mdpi\\ic_launcher_round.webp"
     },
     {
-        "merged": "com.example.myapplicationdemo.app-debug-36:/layout_dialog_add_expense.xml.flat",
-        "source": "com.example.myapplicationdemo.app-main-38:/layout/dialog_add_expense.xml"
-    },
-    {
-        "merged": "com.example.myapplicationdemo.app-debug-36:/layout_fragment_settlement_bottom_sheet.xml.flat",
-        "source": "com.example.myapplicationdemo.app-main-38:/layout/fragment_settlement_bottom_sheet.xml"
-    },
-    {
-        "merged": "com.example.myapplicationdemo.app-debug-36:/layout_dialog_create_group.xml.flat",
-        "source": "com.example.myapplicationdemo.app-main-38:/layout/dialog_create_group.xml"
+        "merged": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-debug-36:\\layout_fragment_settlement_bottom_sheet.xml.flat",
+        "source": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-main-38:\\layout\\fragment_settlement_bottom_sheet.xml"
     },
     {
         "merged": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-debug-36:\\layout_item_expense.xml.flat",
         "source": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-main-38:\\layout\\item_expense.xml"
+    },
+    {
+        "merged": "com.example.myapplicationdemo.app-debug-36:/drawable_ic_delete.xml.flat",
+        "source": "com.example.myapplicationdemo.app-main-38:/drawable/ic_delete.xml"
     },
     {
         "merged": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-debug-36:\\drawable_bg_circle.xml.flat",

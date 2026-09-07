@@ -59,6 +59,8 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHold
     @Override
     public int getItemCount() { return expenses.size(); }
 
+    public Expense getItemAt(int position) { return expenses.get(position); }
+
     static class ViewHolder extends RecyclerView.ViewHolder {
 
         private final ItemExpenseBinding binding;

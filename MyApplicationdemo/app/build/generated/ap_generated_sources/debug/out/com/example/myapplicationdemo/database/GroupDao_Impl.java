@@ -117,6 +117,22 @@ public final class GroupDao_Impl implements GroupDao {
   }
 
   @Override
+  public void deleteById(final int groupId) {
+    final String _sql = "DELETE FROM groups WHERE id = ?";
+    DBUtil.performBlocking(__db, false, true, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, groupId);
+        _stmt.step();
+        return null;
+      } finally {
+        _stmt.close();
+      }
+    });
+  }
+
+  @Override
   public void deleteAll() {
     final String _sql = "DELETE FROM groups";
     DBUtil.performBlocking(__db, false, true, (_connection) -> {

@@ -147,6 +147,38 @@ public final class ExpenseDao_Impl implements ExpenseDao {
   }
 
   @Override
+  public void deleteById(final int expenseId) {
+    final String _sql = "DELETE FROM expenses WHERE id = ?";
+    DBUtil.performBlocking(__db, false, true, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, expenseId);
+        _stmt.step();
+        return null;
+      } finally {
+        _stmt.close();
+      }
+    });
+  }
+
+  @Override
+  public void deleteByGroupId(final int groupId) {
+    final String _sql = "DELETE FROM expenses WHERE groupId = ?";
+    DBUtil.performBlocking(__db, false, true, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, groupId);
+        _stmt.step();
+        return null;
+      } finally {
+        _stmt.close();
+      }
+    });
+  }
+
+  @Override
   public void deleteAll() {
     final String _sql = "DELETE FROM expenses";
     DBUtil.performBlocking(__db, false, true, (_connection) -> {

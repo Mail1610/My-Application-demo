@@ -17,6 +17,7 @@ drawable bg_circle
 drawable bg_gradient_header
 drawable ic_add
 drawable ic_arrow_back
+drawable ic_delete
 drawable ic_launcher_background
 drawable ic_launcher_foreground
 id btn_back
@@ -84,11 +85,15 @@ string btn_add_group
 string btn_back
 string btn_cancel
 string btn_confirm
+string btn_delete
 string btn_login
 string btn_register
+string btn_undo
 string btn_view_settlement
+string dialog_msg_delete_group
 string dialog_title_add_expense
 string dialog_title_create_group
+string dialog_title_delete_group
 string error_amount_invalid
 string error_field_required
 string go_to_login
@@ -125,6 +130,7 @@ string label_settlement_others_owe
 string label_settlement_settled
 string label_welcome_back
 string label_will_receive
+string msg_expense_deleted
 string title_register
 string title_settlement
 style Theme.MyApplicationDemo
