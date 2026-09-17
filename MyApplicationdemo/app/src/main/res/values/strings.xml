@@ -49,12 +49,33 @@
     <string name="dialog_title_create_group">建立群組</string>
     <string name="hint_group_name">群組名稱</string>
 
-    <!-- Add expense dialog -->
+    <!-- Add / Edit expense dialog -->
     <string name="dialog_title_add_expense">新增支出</string>
+    <string name="dialog_title_edit_expense">編輯支出</string>
     <string name="hint_expense_description">支出描述</string>
     <string name="hint_payer">付款人</string>
     <string name="hint_total_amount">總金額</string>
     <string name="hint_my_share">我的分攤金額</string>
+    <string name="hint_date">日期</string>
+    <string name="btn_equal_split">平均分攤</string>
+    <string name="msg_expense_updated">已更新支出</string>
+    <string name="error_enter_total_first">請先輸入總金額</string>
+
+    <!-- Rename group -->
+    <string name="menu_rename_group">重新命名</string>
+    <string name="dialog_title_rename_group">重新命名群組</string>
+    <string name="msg_group_renamed">已重新命名</string>
+
+    <!-- Settlement payment -->
+    <string name="label_settlement_payment">結清款項</string>
+    <string name="btn_record_payment">記錄付款</string>
+    <string name="dialog_title_record_payment">記錄付款</string>
+    <string name="hint_pay_to">付給誰</string>
+    <string name="hint_payment_amount">金額</string>
+    <string name="msg_payment_recorded">已記錄付款</string>
+
+    <!-- Error / Status -->
+    <string name="msg_load_failed">載入失敗，請重試</string>
 
     <!-- Settlement -->
     <string name="title_settlement">結算清單</string>
@@ -74,6 +95,17 @@
     <string name="btn_cancel">取消</string>
     <string name="error_field_required">此欄位為必填</string>
     <string name="error_amount_invalid">請輸入有效金額</string>
+
+    <!-- Multi-user / Firebase -->
+    <string name="dialog_title_set_nickname">設定你的暱稱</string>
+    <string name="hint_nickname">暱稱（顯示給群組成員）</string>
+    <string name="menu_join_group">加入群組</string>
+    <string name="menu_change_nickname">更改暱稱</string>
+    <string name="dialog_title_join_group">加入群組</string>
+    <string name="hint_invite_code">邀請碼（6碼）</string>
+    <string name="msg_group_created">群組已建立！分享邀請碼給成員</string>
+    <string name="msg_group_joined">已成功加入群組</string>
+    <string name="error_invite_code_not_found">找不到此邀請碼，請確認後再試</string>
 
     <!-- Delete -->
     <string name="dialog_title_delete_group">刪除群組</string>

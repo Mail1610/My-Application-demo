@@ -21,8 +21,10 @@
     <string name="btn_cancel">取消</string>
     <string name="btn_confirm">確認</string>
     <string name="btn_delete">刪除</string>
+    <string name="btn_equal_split">平均分攤</string>
     <string name="btn_login">登入</string>
     <string name="btn_logout">登出</string>
+    <string name="btn_record_payment">記錄付款</string>
     <string name="btn_register">建立帳號</string>
     <string name="btn_undo">復原</string>
     <string name="btn_view_settlement">查看結算</string>
@@ -31,18 +33,35 @@
     <string name="dialog_title_add_expense">新增支出</string>
     <string name="dialog_title_create_group">建立群組</string>
     <string name="dialog_title_delete_group">刪除群組</string>
+    <string name="dialog_title_edit_expense">編輯支出</string>
+    <string name="dialog_title_join_group">加入群組</string>
     <string name="dialog_title_logout">確認登出</string>
+    <string name="dialog_title_record_payment">記錄付款</string>
+    <string name="dialog_title_rename_group">重新命名群組</string>
+    <string name="dialog_title_set_nickname">設定你的暱稱</string>
     <string name="error_amount_invalid">請輸入有效金額</string>
+    <string name="error_enter_total_first">請先輸入總金額</string>
     <string name="error_field_required">此欄位為必填</string>
+    <string name="error_invite_code_not_found">找不到此邀請碼，請確認後再試</string>
+    <string name="gcm_defaultSenderId" translatable="false">000000000000</string>
     <string name="go_to_login">已有帳號？返回登入</string>
     <string name="go_to_register">還沒有帳號？立即註冊</string>
+    <string name="google_api_key" translatable="false">DEMO_KEY_NOT_NEEDED_FOR_EMULATOR</string>
+    <string name="google_app_id" translatable="false">1:000000000000:android:0000000000000000</string>
+    <string name="google_crash_reporting_api_key" translatable="false">DEMO_KEY_NOT_NEEDED_FOR_EMULATOR</string>
+    <string name="google_storage_bucket" translatable="false">demo-xian-app.appspot.com</string>
     <string name="hint_confirm_password">確認密碼</string>
+    <string name="hint_date">日期</string>
     <string name="hint_email">電子郵件</string>
     <string name="hint_expense_description">支出描述</string>
     <string name="hint_group_name">群組名稱</string>
+    <string name="hint_invite_code">邀請碼（6碼）</string>
     <string name="hint_my_share">我的分攤金額</string>
+    <string name="hint_nickname">暱稱（顯示給群組成員）</string>
     <string name="hint_password">密碼</string>
+    <string name="hint_pay_to">付給誰</string>
     <string name="hint_payer">付款人</string>
+    <string name="hint_payment_amount">金額</string>
     <string name="hint_total_amount">總金額</string>
     <string name="hint_username">用戶名稱</string>
     <string name="label_amount_format">$%1$.0f</string>
@@ -67,10 +86,21 @@
     <string name="label_register_subtitle">加入顯，開始共同管理帳單</string>
     <string name="label_settlement_i_owe">你欠 %1$s $%2$.0f</string>
     <string name="label_settlement_others_owe">待收款 $%1$.0f</string>
+    <string name="label_settlement_payment">結清款項</string>
     <string name="label_settlement_settled">此群組已結清 ✓</string>
     <string name="label_welcome_back">歡迎回來</string>
     <string name="label_will_receive">你將收到 $%1$.0f</string>
+    <string name="menu_change_nickname">更改暱稱</string>
+    <string name="menu_join_group">加入群組</string>
+    <string name="menu_rename_group">重新命名</string>
     <string name="msg_expense_deleted">已刪除支出</string>
+    <string name="msg_expense_updated">已更新支出</string>
+    <string name="msg_group_created">群組已建立！分享邀請碼給成員</string>
+    <string name="msg_group_joined">已成功加入群組</string>
+    <string name="msg_group_renamed">已重新命名</string>
+    <string name="msg_load_failed">載入失敗，請重試</string>
+    <string name="msg_payment_recorded">已記錄付款</string>
+    <string name="project_id" translatable="false">demo-xian-app</string>
     <string name="title_register">建立帳號</string>
     <string name="title_settlement">結算清單</string>
     <style name="Theme.MyApplicationDemo" parent="Theme.MaterialComponents.DayNight.DarkActionBar">

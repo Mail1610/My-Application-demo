@@ -1,22 +1,18 @@
 package com.example.myapplicationdemo.model;
 
-import androidx.room.Entity;
-import androidx.room.PrimaryKey;
 import java.io.Serializable;
 
-@Entity(tableName = "expenses")
 public class Expense implements Serializable {
 
-    @PrimaryKey
-    private final int id;
-    private final int groupId;
+    private final String id;
+    private final String groupId;
     private final String description;
     private final String payer;
     private final double totalAmount;
     private final double myShare;
     private final String date;
 
-    public Expense(int id, int groupId, String description, String payer,
+    public Expense(String id, String groupId, String description, String payer,
                    double totalAmount, double myShare, String date) {
         this.id = id;
         this.groupId = groupId;
@@ -27,8 +23,8 @@ public class Expense implements Serializable {
         this.date = date;
     }
 
-    public int getId() { return id; }
-    public int getGroupId() { return groupId; }
+    public String getId() { return id; }
+    public String getGroupId() { return groupId; }
     public String getDescription() { return description; }
     public String getPayer() { return payer; }
     public double getTotalAmount() { return totalAmount; }

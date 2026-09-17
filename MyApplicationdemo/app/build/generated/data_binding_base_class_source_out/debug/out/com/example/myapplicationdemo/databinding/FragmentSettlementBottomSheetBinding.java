@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.example.myapplicationdemo.R;
+import com.google.android.material.button.MaterialButton;
 import java.lang.NullPointerException;
 import java.lang.Override;
 import java.lang.String;
@@ -18,6 +19,9 @@ import java.lang.String;
 public final class FragmentSettlementBottomSheetBinding implements ViewBinding {
   @NonNull
   private final LinearLayout rootView;
+
+  @NonNull
+  public final MaterialButton btnRecordPayment;
 
   @NonNull
   public final LinearLayout llSettlementItems;
@@ -29,9 +33,10 @@ public final class FragmentSettlementBottomSheetBinding implements ViewBinding {
   public final TextView tvSettled;
 
   private FragmentSettlementBottomSheetBinding(@NonNull LinearLayout rootView,
-      @NonNull LinearLayout llSettlementItems, @NonNull TextView tvNetBalance,
-      @NonNull TextView tvSettled) {
+      @NonNull MaterialButton btnRecordPayment, @NonNull LinearLayout llSettlementItems,
+      @NonNull TextView tvNetBalance, @NonNull TextView tvSettled) {
     this.rootView = rootView;
+    this.btnRecordPayment = btnRecordPayment;
     this.llSettlementItems = llSettlementItems;
     this.tvNetBalance = tvNetBalance;
     this.tvSettled = tvSettled;
@@ -64,6 +69,12 @@ public final class FragmentSettlementBottomSheetBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
+      id = R.id.btn_record_payment;
+      MaterialButton btnRecordPayment = ViewBindings.findChildViewById(rootView, id);
+      if (btnRecordPayment == null) {
+        break missingId;
+      }
+
       id = R.id.ll_settlement_items;
       LinearLayout llSettlementItems = ViewBindings.findChildViewById(rootView, id);
       if (llSettlementItems == null) {
@@ -82,8 +93,8 @@ public final class FragmentSettlementBottomSheetBinding implements ViewBinding {
         break missingId;
       }
 
-      return new FragmentSettlementBottomSheetBinding((LinearLayout) rootView, llSettlementItems,
-          tvNetBalance, tvSettled);
+      return new FragmentSettlementBottomSheetBinding((LinearLayout) rootView, btnRecordPayment,
+          llSettlementItems, tvNetBalance, tvSettled);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

@@ -42,7 +42,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
             @Override public int getOldListSize() { return groups.size(); }
             @Override public int getNewListSize() { return newGroups.size(); }
             @Override public boolean areItemsTheSame(int o, int n) {
-                return groups.get(o).getId() == newGroups.get(n).getId();
+                return groups.get(o).getId().equals(newGroups.get(n).getId());
             }
             @Override public boolean areContentsTheSame(int o, int n) {
                 Group old = groups.get(o), neu = newGroups.get(n);
@@ -89,7 +89,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
             binding.tvGroupInitial.setText(initial);
             GradientDrawable circle = new GradientDrawable();
             circle.setShape(GradientDrawable.OVAL);
-            circle.setColor(AVATAR_COLORS[group.getId() % AVATAR_COLORS.length]);
+            circle.setColor(AVATAR_COLORS[Math.abs(group.getId().hashCode()) % AVATAR_COLORS.length]);
             binding.tvGroupInitial.setBackground(circle);
 
             binding.tvGroupName.setText(group.getName());
@@ -112,6 +112,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
                 intent.putExtra("group_id", group.getId());
                 intent.putExtra("group_name", group.getName());
                 intent.putExtra("group_balance", group.getMyBalance());
+                intent.putExtra("group_member_count", group.getMemberCount());
                 ctx.startActivity(intent);
             });
 

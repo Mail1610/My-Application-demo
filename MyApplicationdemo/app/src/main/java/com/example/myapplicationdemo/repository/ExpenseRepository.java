@@ -1,98 +1,143 @@
 package com.example.myapplicationdemo.repository;
 
-import com.example.myapplicationdemo.MyApplication;
-import com.example.myapplicationdemo.database.ExpenseDao;
 import com.example.myapplicationdemo.model.Expense;
-import com.example.myapplicationdemo.network.ApiClient;
-import com.example.myapplicationdemo.network.ApiService;
-import com.example.myapplicationdemo.network.dto.ExpenseRequest;
-import com.example.myapplicationdemo.network.dto.ExpenseResponse;
-import com.example.myapplicationdemo.utils.LogUtils;
-import java.io.IOException;
+import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import retrofit2.Response;
+import java.util.Map;
 
 public class ExpenseRepository {
 
-    private final ExpenseDao dao;
-    private final ApiService api;
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    public ExpenseRepository() {
-        dao = MyApplication.getDatabase().expenseDao();
-        api = ApiClient.getInstance();
+    public interface OnExpensesChangedListener {
+        void onChanged(List<Expense> expenses);
     }
 
-    /** API-first：從伺服器拉取，失敗則回傳 Room 快取。 */
-    public List<Expense> getByGroupId(int groupId) {
-        try {
-            Response<List<ExpenseResponse>> resp = api.getExpenses(groupId).execute();
-            if (resp.isSuccessful() && resp.body() != null) {
-                List<Expense> expenses = toModels(resp.body());
-                dao.deleteByGroupId(groupId);
-                dao.insertAll(expenses);
-                return expenses;
-            }
-        } catch (IOException e) {
-            LogUtils.warn("支出 API 不可用，使用本地快取");
-        }
-        return dao.getByGroupId(groupId);
+    public ListenerRegistration addExpensesListener(String groupId,
+                                                     OnExpensesChangedListener listener) {
+        return db.collection("groups").document(groupId)
+                .collection("expenses")
+                .orderBy("createdAt", Query.Direction.DESCENDING)
+                .addSnapshotListener((snap, e) -> {
+                    if (e != null || snap == null) return;
+                    List<Expense> list = new ArrayList<>();
+                    for (DocumentSnapshot doc : snap.getDocuments()) {
+                        list.add(docToExpense(doc, groupId));
+                    }
+                    listener.onChanged(list);
+                });
     }
 
-    public Expense addExpense(int groupId, String description, String payer,
-                              double totalAmount, double myShare, String date) {
-        ExpenseRequest req = new ExpenseRequest(description, payer, totalAmount, myShare, date);
-        try {
-            Response<ExpenseResponse> resp = api.createExpense(groupId, req).execute();
-            if (resp.isSuccessful() && resp.body() != null) {
-                Expense expense = toModel(resp.body());
-                dao.insert(expense);
-                return expense;
-            }
-        } catch (IOException e) {
-            LogUtils.warn("新增支出 API 失敗");
-        }
-        // 離線 fallback
-        int newId = dao.getMaxId() + 1;
-        Expense expense = new Expense(newId, groupId, description, payer, totalAmount, myShare, date);
-        dao.insert(expense);
-        return expense;
-    }
-
-    public void deleteExpense(int expenseId) {
-        try {
-            api.deleteExpense(expenseId).execute();
-        } catch (IOException e) {
-            LogUtils.warn("刪除支出 API 失敗");
-        }
-        dao.deleteById(expenseId);
-    }
-
-    public void restoreExpense(Expense expense) {
-        ExpenseRequest req = new ExpenseRequest(expense.getDescription(), expense.getPayer(),
-                expense.getTotalAmount(), expense.getMyShare(), expense.getDate());
-        try {
-            Response<ExpenseResponse> resp = api.createExpense(expense.getGroupId(), req).execute();
-            if (resp.isSuccessful() && resp.body() != null) {
-                dao.insert(toModel(resp.body()));
-                return;
-            }
-        } catch (IOException e) {
-            LogUtils.warn("復原支出 API 失敗");
-        }
-        dao.insert(expense);
-    }
-
-    // ── Mapping ────────────────────────────────────────────────────
-
-    private List<Expense> toModels(List<ExpenseResponse> responses) {
+    /** Synchronous fetch — call only from a background thread. */
+    public List<Expense> getByGroupId(String groupId) throws Exception {
+        QuerySnapshot snap = Tasks.await(
+                db.collection("groups").document(groupId)
+                        .collection("expenses")
+                        .orderBy("createdAt", Query.Direction.DESCENDING)
+                        .get()
+        );
         List<Expense> list = new ArrayList<>();
-        for (ExpenseResponse r : responses) list.add(toModel(r));
+        for (DocumentSnapshot doc : snap.getDocuments()) {
+            list.add(docToExpense(doc, groupId));
+        }
         return list;
     }
 
-    private Expense toModel(ExpenseResponse r) {
-        return new Expense(r.id, r.groupId, r.description, r.payer,
-                r.totalAmount, r.myShare, r.date);
+    public Expense addExpense(String groupId, String description, String payer,
+                              double totalAmount, double myShare, String date) throws Exception {
+        Map<String, Object> data = new HashMap<>();
+        data.put("description", description);
+        data.put("payer", payer);
+        data.put("totalAmount", totalAmount);
+        data.put("myShare", myShare);
+        data.put("date", date);
+        data.put("createdAt", FieldValue.serverTimestamp());
+        DocumentReference ref = db.collection("groups").document(groupId)
+                .collection("expenses").document();
+        Tasks.await(ref.set(data));
+        recomputeAndUpdateBalances(groupId);
+        return new Expense(ref.getId(), groupId, description, payer, totalAmount, myShare, date);
+    }
+
+    public void deleteExpense(String groupId, String expenseId) throws Exception {
+        Tasks.await(db.collection("groups").document(groupId)
+                .collection("expenses").document(expenseId).delete());
+        recomputeAndUpdateBalances(groupId);
+    }
+
+    public void updateExpense(Expense expense) throws Exception {
+        Map<String, Object> data = new HashMap<>();
+        data.put("description", expense.getDescription());
+        data.put("payer", expense.getPayer());
+        data.put("totalAmount", expense.getTotalAmount());
+        data.put("myShare", expense.getMyShare());
+        data.put("date", expense.getDate());
+        Tasks.await(db.collection("groups").document(expense.getGroupId())
+                .collection("expenses").document(expense.getId()).update(data));
+        recomputeAndUpdateBalances(expense.getGroupId());
+    }
+
+    public void restoreExpense(Expense expense) throws Exception {
+        addExpense(expense.getGroupId(), expense.getDescription(), expense.getPayer(),
+                expense.getTotalAmount(), expense.getMyShare(), expense.getDate());
+    }
+
+    private void recomputeAndUpdateBalances(String groupId) throws Exception {
+        DocumentSnapshot groupDoc = Tasks.await(
+                db.collection("groups").document(groupId).get()
+        );
+        @SuppressWarnings("unchecked")
+        Map<String, Object> nicknameMap = (Map<String, Object>) groupDoc.get("nicknames");
+        if (nicknameMap == null) return;
+
+        QuerySnapshot snap = Tasks.await(
+                db.collection("groups").document(groupId).collection("expenses").get()
+        );
+        List<Expense> expenses = new ArrayList<>();
+        for (DocumentSnapshot doc : snap.getDocuments()) {
+            expenses.add(docToExpense(doc, groupId));
+        }
+
+        Map<String, Object> updates = new HashMap<>();
+        for (Map.Entry<String, Object> entry : nicknameMap.entrySet()) {
+            String deviceId = entry.getKey();
+            String nickname = String.valueOf(entry.getValue());
+            updates.put("balances." + deviceId, computeBalanceFor(expenses, nickname));
+        }
+        Tasks.await(db.collection("groups").document(groupId).update(updates));
+    }
+
+    private double computeBalanceFor(List<Expense> expenses, String nickname) {
+        double bal = 0;
+        for (Expense e : expenses) {
+            if (nickname.equals(e.getPayer())) {
+                bal += e.getTotalAmount() - e.getMyShare();
+            } else {
+                bal -= e.getMyShare();
+            }
+        }
+        return bal;
+    }
+
+    private Expense docToExpense(DocumentSnapshot doc, String groupId) {
+        Double total = doc.getDouble("totalAmount");
+        Double share = doc.getDouble("myShare");
+        return new Expense(
+                doc.getId(),
+                groupId,
+                doc.getString("description") != null ? doc.getString("description") : "",
+                doc.getString("payer") != null ? doc.getString("payer") : "",
+                total != null ? total : 0.0,
+                share != null ? share : 0.0,
+                doc.getString("date") != null ? doc.getString("date") : "");
     }
 }

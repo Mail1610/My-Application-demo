@@ -18,10 +18,19 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHold
         0xFF4361EE, 0xFF7B2FBE, 0xFFE63946, 0xFF00A878, 0xFFF4A261
     };
 
+    public interface OnExpenseEditListener {
+        void onEdit(Expense expense);
+    }
+
     private final List<Expense> expenses = new ArrayList<>();
+    private OnExpenseEditListener editListener;
 
     public ExpenseAdapter(List<Expense> expenses) {
         this.expenses.addAll(expenses);
+    }
+
+    public void setOnExpenseEditListener(OnExpenseEditListener listener) {
+        this.editListener = listener;
     }
 
     public void updateData(List<Expense> newExpenses) {
@@ -29,7 +38,7 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHold
             @Override public int getOldListSize() { return expenses.size(); }
             @Override public int getNewListSize() { return newExpenses.size(); }
             @Override public boolean areItemsTheSame(int o, int n) {
-                return expenses.get(o).getId() == newExpenses.get(n).getId();
+                return expenses.get(o).getId().equals(newExpenses.get(n).getId());
             }
             @Override public boolean areContentsTheSame(int o, int n) {
                 Expense old = expenses.get(o), neu = newExpenses.get(n);
@@ -53,7 +62,7 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.bind(expenses.get(position), position);
+        holder.bind(expenses.get(position), position, editListener);
     }
 
     @Override
@@ -70,7 +79,7 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHold
             this.binding = binding;
         }
 
-        void bind(Expense expense, int position) {
+        void bind(Expense expense, int position, OnExpenseEditListener editListener) {
             Context ctx = itemView.getContext();
             binding.viewAccent.setBackgroundColor(ACCENT_COLORS[position % ACCENT_COLORS.length]);
 
@@ -87,6 +96,11 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHold
             binding.tvPayer.setText(ctx.getString(R.string.label_paid_by_user, expense.getPayer()));
             binding.tvAmount.setText(ctx.getString(R.string.label_amount_format, expense.getTotalAmount()));
             binding.tvMyShare.setText(ctx.getString(R.string.label_my_share_amount, expense.getMyShare()));
+
+            itemView.setOnLongClickListener(v -> {
+                if (editListener != null) editListener.onEdit(expense);
+                return true;
+            });
         }
     }
 }

@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.example.myapplicationdemo.R;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import java.lang.NullPointerException;
@@ -19,6 +20,12 @@ import java.lang.String;
 public final class DialogAddExpenseBinding implements ViewBinding {
   @NonNull
   private final ScrollView rootView;
+
+  @NonNull
+  public final MaterialButton btnEqualSplit;
+
+  @NonNull
+  public final TextInputEditText etDate;
 
   @NonNull
   public final TextInputEditText etDescription;
@@ -33,6 +40,9 @@ public final class DialogAddExpenseBinding implements ViewBinding {
   public final TextInputEditText etTotalAmount;
 
   @NonNull
+  public final TextInputLayout tilDate;
+
+  @NonNull
   public final TextInputLayout tilDescription;
 
   @NonNull
@@ -45,15 +55,20 @@ public final class DialogAddExpenseBinding implements ViewBinding {
   public final TextInputLayout tilTotalAmount;
 
   private DialogAddExpenseBinding(@NonNull ScrollView rootView,
+      @NonNull MaterialButton btnEqualSplit, @NonNull TextInputEditText etDate,
       @NonNull TextInputEditText etDescription, @NonNull TextInputEditText etMyShare,
       @NonNull TextInputEditText etPayer, @NonNull TextInputEditText etTotalAmount,
-      @NonNull TextInputLayout tilDescription, @NonNull TextInputLayout tilMyShare,
-      @NonNull TextInputLayout tilPayer, @NonNull TextInputLayout tilTotalAmount) {
+      @NonNull TextInputLayout tilDate, @NonNull TextInputLayout tilDescription,
+      @NonNull TextInputLayout tilMyShare, @NonNull TextInputLayout tilPayer,
+      @NonNull TextInputLayout tilTotalAmount) {
     this.rootView = rootView;
+    this.btnEqualSplit = btnEqualSplit;
+    this.etDate = etDate;
     this.etDescription = etDescription;
     this.etMyShare = etMyShare;
     this.etPayer = etPayer;
     this.etTotalAmount = etTotalAmount;
+    this.tilDate = tilDate;
     this.tilDescription = tilDescription;
     this.tilMyShare = tilMyShare;
     this.tilPayer = tilPayer;
@@ -87,6 +102,18 @@ public final class DialogAddExpenseBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
+      id = R.id.btn_equal_split;
+      MaterialButton btnEqualSplit = ViewBindings.findChildViewById(rootView, id);
+      if (btnEqualSplit == null) {
+        break missingId;
+      }
+
+      id = R.id.et_date;
+      TextInputEditText etDate = ViewBindings.findChildViewById(rootView, id);
+      if (etDate == null) {
+        break missingId;
+      }
+
       id = R.id.et_description;
       TextInputEditText etDescription = ViewBindings.findChildViewById(rootView, id);
       if (etDescription == null) {
@@ -108,6 +135,12 @@ public final class DialogAddExpenseBinding implements ViewBinding {
       id = R.id.et_total_amount;
       TextInputEditText etTotalAmount = ViewBindings.findChildViewById(rootView, id);
       if (etTotalAmount == null) {
+        break missingId;
+      }
+
+      id = R.id.til_date;
+      TextInputLayout tilDate = ViewBindings.findChildViewById(rootView, id);
+      if (tilDate == null) {
         break missingId;
       }
 
@@ -135,8 +168,9 @@ public final class DialogAddExpenseBinding implements ViewBinding {
         break missingId;
       }
 
-      return new DialogAddExpenseBinding((ScrollView) rootView, etDescription, etMyShare, etPayer,
-          etTotalAmount, tilDescription, tilMyShare, tilPayer, tilTotalAmount);
+      return new DialogAddExpenseBinding((ScrollView) rootView, btnEqualSplit, etDate,
+          etDescription, etMyShare, etPayer, etTotalAmount, tilDate, tilDescription, tilMyShare,
+          tilPayer, tilTotalAmount);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

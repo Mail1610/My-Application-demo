@@ -64,4 +64,15 @@
         android:textSize="16sp"
         android:visibility="gone" />
 
+    <!-- Record payment button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_record_payment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="24dp"
+        android:text="@string/btn_record_payment"
+        app:cornerRadius="12dp"
+        xmlns:app="http://schemas.android.com/apk/res-auto" />
+
 </LinearLayout>

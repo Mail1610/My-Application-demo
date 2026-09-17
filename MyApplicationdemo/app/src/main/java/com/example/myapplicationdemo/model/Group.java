@@ -1,26 +1,24 @@
 package com.example.myapplicationdemo.model;
 
-import androidx.room.Entity;
-import androidx.room.PrimaryKey;
-
-@Entity(tableName = "groups")
 public class Group {
 
-    @PrimaryKey
-    private final int id;
+    private final String id;
     private final String name;
     private final int memberCount;
     private final double myBalance;
+    private final String inviteCode;
 
-    public Group(int id, String name, int memberCount, double myBalance) {
+    public Group(String id, String name, int memberCount, double myBalance, String inviteCode) {
         this.id = id;
         this.name = name;
         this.memberCount = memberCount;
         this.myBalance = myBalance;
+        this.inviteCode = inviteCode;
     }
 
-    public int getId() { return id; }
+    public String getId() { return id; }
     public String getName() { return name; }
     public int getMemberCount() { return memberCount; }
     public double getMyBalance() { return myBalance; }
+    public String getInviteCode() { return inviteCode; }
 }

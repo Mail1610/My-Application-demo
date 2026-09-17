@@ -3,9 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/action_logout"
-        android:icon="@drawable/ic_logout"
-        android:title="@string/btn_logout"
-        app:showAsAction="ifRoom" />
+        android:id="@+id/action_join_group"
+        android:title="@string/menu_join_group"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_change_nickname"
+        android:title="@string/menu_change_nickname"
+        app:showAsAction="never" />
 
 </menu>

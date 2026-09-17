@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.example.myapplicationdemo.R;
@@ -33,6 +34,9 @@ public final class ActivityGroupDetailBinding implements ViewBinding {
   public final RecyclerView rvExpenses;
 
   @NonNull
+  public final SwipeRefreshLayout swipeRefresh;
+
+  @NonNull
   public final MaterialToolbar toolbar;
 
   @NonNull
@@ -43,12 +47,14 @@ public final class ActivityGroupDetailBinding implements ViewBinding {
 
   private ActivityGroupDetailBinding(@NonNull CoordinatorLayout rootView,
       @NonNull MaterialButton btnSettlement, @NonNull ExtendedFloatingActionButton fabAddExpense,
-      @NonNull RecyclerView rvExpenses, @NonNull MaterialToolbar toolbar,
-      @NonNull TextView tvBalanceAmount, @NonNull TextView tvEmptyExpenses) {
+      @NonNull RecyclerView rvExpenses, @NonNull SwipeRefreshLayout swipeRefresh,
+      @NonNull MaterialToolbar toolbar, @NonNull TextView tvBalanceAmount,
+      @NonNull TextView tvEmptyExpenses) {
     this.rootView = rootView;
     this.btnSettlement = btnSettlement;
     this.fabAddExpense = fabAddExpense;
     this.rvExpenses = rvExpenses;
+    this.swipeRefresh = swipeRefresh;
     this.toolbar = toolbar;
     this.tvBalanceAmount = tvBalanceAmount;
     this.tvEmptyExpenses = tvEmptyExpenses;
@@ -99,6 +105,12 @@ public final class ActivityGroupDetailBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.swipe_refresh;
+      SwipeRefreshLayout swipeRefresh = ViewBindings.findChildViewById(rootView, id);
+      if (swipeRefresh == null) {
+        break missingId;
+      }
+
       id = R.id.toolbar;
       MaterialToolbar toolbar = ViewBindings.findChildViewById(rootView, id);
       if (toolbar == null) {
@@ -118,7 +130,7 @@ public final class ActivityGroupDetailBinding implements ViewBinding {
       }
 
       return new ActivityGroupDetailBinding((CoordinatorLayout) rootView, btnSettlement,
-          fabAddExpense, rvExpenses, toolbar, tvBalanceAmount, tvEmptyExpenses);
+          fabAddExpense, rvExpenses, swipeRefresh, toolbar, tvBalanceAmount, tvEmptyExpenses);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

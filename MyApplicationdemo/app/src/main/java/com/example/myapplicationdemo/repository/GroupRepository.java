@@ -1,107 +1,115 @@
 package com.example.myapplicationdemo.repository;
 
-import com.example.myapplicationdemo.MyApplication;
-import com.example.myapplicationdemo.database.ExpenseDao;
-import com.example.myapplicationdemo.database.GroupDao;
-import com.example.myapplicationdemo.model.Expense;
 import com.example.myapplicationdemo.model.Group;
-import com.example.myapplicationdemo.network.ApiClient;
-import com.example.myapplicationdemo.network.ApiService;
-import com.example.myapplicationdemo.network.dto.GroupRequest;
-import com.example.myapplicationdemo.network.dto.GroupResponse;
-import com.example.myapplicationdemo.utils.LogUtils;
-import java.io.IOException;
+import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import retrofit2.Response;
+import java.util.Map;
+import java.util.Random;
 
 public class GroupRepository {
 
-    private final GroupDao dao;
-    private final ExpenseDao expenseDao;
-    private final ApiService api;
+    private static final String COLLECTION = "groups";
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    public GroupRepository() {
-        dao = MyApplication.getDatabase().groupDao();
-        expenseDao = MyApplication.getDatabase().expenseDao();
-        api = ApiClient.getInstance();
+    public interface OnGroupsChangedListener {
+        void onChanged(List<Group> groups);
     }
 
-    /** API-first：從伺服器拉取，失敗則回傳 Room 快取。餘額以 Room 支出即時計算。 */
-    public List<Group> getAll(String username) {
-        List<Group> groups;
-        try {
-            Response<List<GroupResponse>> resp = api.getGroups().execute();
-            if (resp.isSuccessful() && resp.body() != null) {
-                groups = toModels(resp.body());
-                dao.deleteAll();
-                dao.insertAll(groups);
-            } else {
-                groups = dao.getAll();
-            }
-        } catch (IOException e) {
-            LogUtils.warn("群組 API 不可用，使用本地快取");
-            groups = dao.getAll();
+    public ListenerRegistration addGroupsListener(String deviceId,
+                                                   OnGroupsChangedListener listener) {
+        return db.collection(COLLECTION)
+                .whereArrayContains("members", deviceId)
+                .addSnapshotListener((snap, e) -> {
+                    if (e != null || snap == null) return;
+                    List<Group> list = new ArrayList<>();
+                    for (DocumentSnapshot doc : snap.getDocuments()) {
+                        list.add(docToGroup(doc, deviceId));
+                    }
+                    listener.onChanged(list);
+                });
+    }
+
+    public void addGroup(String name, String nickname, String deviceId) throws Exception {
+        String code = generateInviteCode();
+        Map<String, Object> data = new HashMap<>();
+        data.put("name", name);
+        data.put("inviteCode", code);
+        data.put("members", Collections.singletonList(deviceId));
+        data.put("memberCount", 1L);
+        Map<String, String> nicknames = new HashMap<>();
+        nicknames.put(deviceId, nickname);
+        data.put("nicknames", nicknames);
+        Map<String, Double> balances = new HashMap<>();
+        balances.put(deviceId, 0.0);
+        data.put("balances", balances);
+        Tasks.await(db.collection(COLLECTION).add(data));
+    }
+
+    /** @return true if group found and joined, false if invite code not found */
+    public boolean joinGroup(String inviteCode, String nickname, String deviceId) throws Exception {
+        QuerySnapshot snap = Tasks.await(
+                db.collection(COLLECTION)
+                        .whereEqualTo("inviteCode", inviteCode.toUpperCase())
+                        .limit(1)
+                        .get()
+        );
+        if (snap.isEmpty()) return false;
+        String groupId = snap.getDocuments().get(0).getId();
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("members", FieldValue.arrayUnion(deviceId));
+        updates.put("nicknames." + deviceId, nickname);
+        updates.put("balances." + deviceId, 0.0);
+        updates.put("memberCount", FieldValue.increment(1));
+        Tasks.await(db.collection(COLLECTION).document(groupId).update(updates));
+        return true;
+    }
+
+    public void renameGroup(String groupId, String newName) throws Exception {
+        Tasks.await(db.collection(COLLECTION).document(groupId).update("name", newName));
+    }
+
+    public void deleteGroup(String groupId) throws Exception {
+        QuerySnapshot snap = Tasks.await(
+                db.collection(COLLECTION).document(groupId).collection("expenses").get()
+        );
+        for (DocumentSnapshot doc : snap.getDocuments()) {
+            Tasks.await(doc.getReference().delete());
         }
+        Tasks.await(db.collection(COLLECTION).document(groupId).delete());
+    }
 
-        // 用 Room 的支出資料即時覆蓋餘額。
-        // 若 Room 尚無資料（使用者未開啟過該群組），保留 API 回傳的餘額。
-        List<Group> result = new ArrayList<>();
-        for (Group g : groups) {
-            List<Expense> expenses = expenseDao.getByGroupId(g.getId());
-            double balance = expenses.isEmpty()
-                    ? g.getMyBalance()
-                    : computeBalance(expenses, username);
-            result.add(new Group(g.getId(), g.getName(), g.getMemberCount(), balance));
+    private Group docToGroup(DocumentSnapshot doc, String deviceId) {
+        String name = doc.getString("name");
+        Long memberCount = doc.getLong("memberCount");
+        String inviteCode = doc.getString("inviteCode");
+        @SuppressWarnings("unchecked")
+        Map<String, Object> balances = (Map<String, Object>) doc.get("balances");
+        double balance = 0.0;
+        if (balances != null && balances.containsKey(deviceId)) {
+            Object val = balances.get(deviceId);
+            if (val instanceof Number) balance = ((Number) val).doubleValue();
         }
-        return result;
+        return new Group(
+                doc.getId(),
+                name != null ? name : "",
+                memberCount != null ? memberCount.intValue() : 0,
+                balance,
+                inviteCode != null ? inviteCode : "");
     }
 
-    private double computeBalance(List<Expense> expenses, String username) {
-        double bal = 0;
-        for (Expense e : expenses) {
-            if (username != null && username.equals(e.getPayer())) {
-                bal += e.getTotalAmount() - e.getMyShare();
-            } else {
-                bal -= e.getMyShare();
-            }
-        }
-        return bal;
-    }
-
-    public void addGroup(String name) {
-        try {
-            Response<GroupResponse> resp = api.createGroup(new GroupRequest(name)).execute();
-            if (resp.isSuccessful() && resp.body() != null) {
-                dao.insert(toModel(resp.body()));
-                return;
-            }
-        } catch (IOException e) {
-            LogUtils.warn("新增群組 API 失敗");
-        }
-        int newId = dao.getMaxId() + 1;
-        dao.insert(new Group(newId, name, 1, 0.0));
-    }
-
-    public void deleteGroup(int groupId) {
-        try {
-            api.deleteGroup(groupId).execute();
-        } catch (IOException e) {
-            LogUtils.warn("刪除群組 API 失敗");
-        }
-        dao.deleteById(groupId);
-        MyApplication.getDatabase().expenseDao().deleteByGroupId(groupId);
-    }
-
-    // ── Mapping ────────────────────────────────────────────────────
-
-    private List<Group> toModels(List<GroupResponse> responses) {
-        List<Group> list = new ArrayList<>();
-        for (GroupResponse r : responses) list.add(toModel(r));
-        return list;
-    }
-
-    private Group toModel(GroupResponse r) {
-        return new Group(r.id, r.name, r.memberCount, r.myBalance);
+    private String generateInviteCode() {
+        String chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+        StringBuilder sb = new StringBuilder(6);
+        Random rand = new Random();
+        for (int i = 0; i < 6; i++) sb.append(chars.charAt(rand.nextInt(chars.length())));
+        return sb.toString();
     }
 }

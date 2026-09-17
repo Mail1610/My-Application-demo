@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.example.myapplicationdemo.R;
@@ -29,6 +30,9 @@ public final class ActivityMainBinding implements ViewBinding {
   public final RecyclerView rvGroups;
 
   @NonNull
+  public final SwipeRefreshLayout swipeRefresh;
+
+  @NonNull
   public final MaterialToolbar toolbar;
 
   @NonNull
@@ -42,11 +46,13 @@ public final class ActivityMainBinding implements ViewBinding {
 
   private ActivityMainBinding(@NonNull CoordinatorLayout rootView,
       @NonNull ExtendedFloatingActionButton fabAddGroup, @NonNull RecyclerView rvGroups,
-      @NonNull MaterialToolbar toolbar, @NonNull TextView tvEmptyGroups,
-      @NonNull TextView tvGroupsSummary, @NonNull TextView tvNetBalance) {
+      @NonNull SwipeRefreshLayout swipeRefresh, @NonNull MaterialToolbar toolbar,
+      @NonNull TextView tvEmptyGroups, @NonNull TextView tvGroupsSummary,
+      @NonNull TextView tvNetBalance) {
     this.rootView = rootView;
     this.fabAddGroup = fabAddGroup;
     this.rvGroups = rvGroups;
+    this.swipeRefresh = swipeRefresh;
     this.toolbar = toolbar;
     this.tvEmptyGroups = tvEmptyGroups;
     this.tvGroupsSummary = tvGroupsSummary;
@@ -92,6 +98,12 @@ public final class ActivityMainBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.swipe_refresh;
+      SwipeRefreshLayout swipeRefresh = ViewBindings.findChildViewById(rootView, id);
+      if (swipeRefresh == null) {
+        break missingId;
+      }
+
       id = R.id.toolbar;
       MaterialToolbar toolbar = ViewBindings.findChildViewById(rootView, id);
       if (toolbar == null) {
@@ -116,8 +128,8 @@ public final class ActivityMainBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ActivityMainBinding((CoordinatorLayout) rootView, fabAddGroup, rvGroups, toolbar,
-          tvEmptyGroups, tvGroupsSummary, tvNetBalance);
+      return new ActivityMainBinding((CoordinatorLayout) rootView, fabAddGroup, rvGroups,
+          swipeRefresh, toolbar, tvEmptyGroups, tvGroupsSummary, tvNetBalance);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));
