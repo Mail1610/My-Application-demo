@@ -113,8 +113,9 @@ public class GroupDetailActivity extends AppCompatActivity {
         menu.findItem(R.id.action_change_invite_code).setVisible(isAdmin);
         menu.findItem(R.id.action_manage_members).setVisible(isAdmin);
         menu.findItem(R.id.action_delete_group).setVisible(isAdmin);
-        // Non-admin shows leave; admin deletes instead
-        menu.findItem(R.id.action_leave_group).setVisible(!isAdmin);
+        // Creator must delete; non-creators (including non-creator admins) can leave
+        boolean isCreator = deviceId.equals(creatorDeviceId);
+        menu.findItem(R.id.action_leave_group).setVisible(!isCreator);
         return true;
     }
 
@@ -255,7 +256,7 @@ public class GroupDetailActivity extends AppCompatActivity {
                         if (targetIsAdmin) {
                             if (targetId.equals(creatorDeviceId)) {
                                 Snackbar.make(binding.getRoot(),
-                                        "無法取消創建者的管理員權限", Snackbar.LENGTH_SHORT).show();
+                                        R.string.error_cannot_revoke_creator_admin, Snackbar.LENGTH_SHORT).show();
                                 return;
                             }
                             viewModel.revokeAdmin(groupId, targetId, creatorDeviceId);

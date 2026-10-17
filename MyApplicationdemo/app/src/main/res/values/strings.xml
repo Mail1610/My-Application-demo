@@ -147,6 +147,7 @@
     <string name="btn_revoke_admin">取消管理員</string>
     <string name="msg_admin_granted">已設為管理員</string>
     <string name="msg_admin_revoked">已取消管理員</string>
+    <string name="error_cannot_revoke_creator_admin">無法取消創建者的管理員權限</string>
     <string name="label_admin_badge"> ★</string>
     <string name="msg_expense_deleted">已刪除支出</string>
     <string name="btn_undo">復原</string>

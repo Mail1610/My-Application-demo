@@ -2669,6 +2669,7 @@
     <string name="error_admin_only">只有管理員才能執行此操作</string>
     <string name="error_amount_invalid">請輸入有效金額</string>
     <string name="error_cannot_leave_last_member">你是最後一位成員，請直接刪除群組。</string>
+    <string name="error_cannot_revoke_creator_admin">無法取消創建者的管理員權限</string>
     <string name="error_enter_total_first">請先輸入總金額</string>
     <string name="error_field_required">此欄位為必填</string>
     <string name="error_icon_content_description">Error</string>

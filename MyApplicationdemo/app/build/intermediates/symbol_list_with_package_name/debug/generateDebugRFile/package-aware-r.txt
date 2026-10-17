@@ -145,6 +145,7 @@ string dialog_title_set_nickname
 string error_admin_only
 string error_amount_invalid
 string error_cannot_leave_last_member
+string error_cannot_revoke_creator_admin
 string error_enter_total_first
 string error_field_required
 string error_invite_code_invalid

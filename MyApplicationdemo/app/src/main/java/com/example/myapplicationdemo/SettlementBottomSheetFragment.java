@@ -71,10 +71,11 @@ public class SettlementBottomSheetFragment extends BottomSheetDialogFragment {
         }).start();
 
         btnRecordPayment.setOnClickListener(v ->
-                showRecordPaymentDialog(groupId, repo, myName));
+                showRecordPaymentDialog(groupId, repo, myName, tvNetBalance, llItems, tvSettled));
     }
 
-    private void showRecordPaymentDialog(String groupId, ExpenseRepository repo, String myName) {
+    private void showRecordPaymentDialog(String groupId, ExpenseRepository repo, String myName,
+            TextView tvNetBalance, LinearLayout llItems, TextView tvSettled) {
         View dialogView = LayoutInflater.from(requireContext())
                 .inflate(R.layout.dialog_record_payment, null, false);
 
@@ -121,13 +122,19 @@ public class SettlementBottomSheetFragment extends BottomSheetDialogFragment {
 
             new Thread(() -> {
                 try {
-                    repo.addExpense(groupId, paymentLabel, payTo, finalAmount, finalAmount, today, "其他");
+                    // Bug fix: payer = me (I'm returning money), myShare = 0 (I owe nothing extra)
+                    // Previously used payTo as payer with myShare=amount, which made balance worse
+                    repo.addExpense(groupId, paymentLabel, myName, finalAmount, 0.0, today, "其他");
+                    List<Expense> updated = repo.getByGroupId(groupId);
                     if (!isAdded()) return;
                     requireActivity().runOnUiThread(() -> {
                         Bundle result = new Bundle();
                         result.putBoolean("refreshed", true);
                         getParentFragmentManager().setFragmentResult("settlement_result", result);
-                        dismiss();
+                        // Refresh in-place instead of dismissing (Bug 4 fix)
+                        llItems.removeAllViews();
+                        tvSettled.setVisibility(View.GONE);
+                        renderSettlement(tvNetBalance, llItems, tvSettled, updated, myName);
                     });
                 } catch (Exception e) {
                     LogUtils.error("記錄付款失敗", e);

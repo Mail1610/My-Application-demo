@@ -144,6 +144,7 @@ int string dialog_title_set_nickname 0x0
 int string error_admin_only 0x0
 int string error_amount_invalid 0x0
 int string error_cannot_leave_last_member 0x0
+int string error_cannot_revoke_creator_admin 0x0
 int string error_enter_total_first 0x0
 int string error_field_required 0x0
 int string error_invite_code_invalid 0x0
