@@ -1,6 +1,7 @@
 package com.example.myapplicationdemo.repository;
 
 import com.example.myapplicationdemo.model.Expense;
+import com.example.myapplicationdemo.utils.LogUtils;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -64,14 +65,14 @@ public class ExpenseRepository {
         DocumentReference ref = db.collection("groups").document(groupId)
                 .collection("expenses").document();
         Tasks.await(ref.set(data));
-        recomputeAndUpdateBalances(groupId);
+        asyncRecompute(groupId);
         return new Expense(ref.getId(), groupId, description, payer, totalAmount, myShare, date);
     }
 
     public void deleteExpense(String groupId, String expenseId) throws Exception {
         Tasks.await(db.collection("groups").document(groupId)
                 .collection("expenses").document(expenseId).delete());
-        recomputeAndUpdateBalances(groupId);
+        asyncRecompute(groupId);
     }
 
     public void updateExpense(Expense expense) throws Exception {
@@ -83,12 +84,19 @@ public class ExpenseRepository {
         data.put("date", expense.getDate());
         Tasks.await(db.collection("groups").document(expense.getGroupId())
                 .collection("expenses").document(expense.getId()).update(data));
-        recomputeAndUpdateBalances(expense.getGroupId());
+        asyncRecompute(expense.getGroupId());
     }
 
     public void restoreExpense(Expense expense) throws Exception {
         addExpense(expense.getGroupId(), expense.getDescription(), expense.getPayer(),
                 expense.getTotalAmount(), expense.getMyShare(), expense.getDate());
+    }
+
+    private void asyncRecompute(String groupId) {
+        new Thread(() -> {
+            try { recomputeAndUpdateBalances(groupId); }
+            catch (Exception e) { LogUtils.error("balance sync failed", e); }
+        }).start();
     }
 
     private void recomputeAndUpdateBalances(String groupId) throws Exception {

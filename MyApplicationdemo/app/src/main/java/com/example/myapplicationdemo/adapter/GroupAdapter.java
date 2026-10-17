@@ -113,6 +113,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
                 intent.putExtra("group_name", group.getName());
                 intent.putExtra("group_balance", group.getMyBalance());
                 intent.putExtra("group_member_count", group.getMemberCount());
+                intent.putExtra("group_invite_code", group.getInviteCode());
                 ctx.startActivity(intent);
             });
 

@@ -19,11 +19,13 @@ public class GroupDetailViewModel extends AndroidViewModel {
     private final MutableLiveData<Double> balance = new MutableLiveData<>();
     private final MutableLiveData<Boolean> loading = new MutableLiveData<>(false);
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
+    private final MutableLiveData<Integer> memberCount = new MutableLiveData<>();
     private final ExpenseRepository repository = new ExpenseRepository();
     private final GroupRepository groupRepository = new GroupRepository();
     private String currentGroupId;
     private String myNickname;
     private ListenerRegistration expenseListener;
+    private ListenerRegistration groupListener;
 
     public GroupDetailViewModel(@NonNull Application application) {
         super(application);
@@ -34,6 +36,7 @@ public class GroupDetailViewModel extends AndroidViewModel {
     public LiveData<Double> getBalance() { return balance; }
     public LiveData<Boolean> getLoading() { return loading; }
     public LiveData<String> getErrorMessage() { return errorMessage; }
+    public LiveData<Integer> getMemberCount() { return memberCount; }
 
     public void loadExpenses(String groupId) {
         currentGroupId = groupId;
@@ -44,6 +47,9 @@ public class GroupDetailViewModel extends AndroidViewModel {
             balance.postValue(computeBalance(list));
             loading.postValue(false);
         });
+        if (groupListener != null) groupListener.remove();
+        groupListener = groupRepository.addGroupListener(groupId, count ->
+                memberCount.postValue(count));
     }
 
     public void addExpense(String description, String payer,
@@ -90,6 +96,22 @@ public class GroupDetailViewModel extends AndroidViewModel {
         }).start();
     }
 
+    public interface MembersCallback {
+        void onResult(List<String> members);
+    }
+
+    public void loadMembers(String groupId, MembersCallback callback) {
+        new Thread(() -> {
+            try {
+                List<String> members = groupRepository.getMembers(groupId);
+                new android.os.Handler(android.os.Looper.getMainLooper())
+                        .post(() -> callback.onResult(members));
+            } catch (Exception e) {
+                LogUtils.error("載入成員失敗", e);
+            }
+        }).start();
+    }
+
     public void renameGroup(String groupId, String newName) {
         new Thread(() -> {
             try {
@@ -116,5 +138,6 @@ public class GroupDetailViewModel extends AndroidViewModel {
     protected void onCleared() {
         super.onCleared();
         if (expenseListener != null) expenseListener.remove();
+        if (groupListener != null) groupListener.remove();
     }
 }

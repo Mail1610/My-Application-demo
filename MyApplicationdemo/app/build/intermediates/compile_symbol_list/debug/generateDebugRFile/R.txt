@@ -21,6 +21,7 @@ int drawable ic_launcher_background 0x0
 int drawable ic_launcher_foreground 0x0
 int drawable ic_logout 0x0
 int id action_change_nickname 0x0
+int id action_copy_invite_code 0x0
 int id action_join_group 0x0
 int id action_rename_group 0x0
 int id btn_equal_split 0x0
@@ -109,6 +110,7 @@ int string dialog_title_delete_group 0x0
 int string dialog_title_edit_expense 0x0
 int string dialog_title_join_group 0x0
 int string dialog_title_logout 0x0
+int string dialog_title_members 0x0
 int string dialog_title_record_payment 0x0
 int string dialog_title_rename_group 0x0
 int string dialog_title_set_nickname 0x0
@@ -164,6 +166,7 @@ int string label_settlement_settled 0x0
 int string label_welcome_back 0x0
 int string label_will_receive 0x0
 int string menu_change_nickname 0x0
+int string menu_copy_invite_code 0x0
 int string menu_join_group 0x0
 int string menu_rename_group 0x0
 int string msg_expense_deleted 0x0
@@ -171,6 +174,7 @@ int string msg_expense_updated 0x0
 int string msg_group_created 0x0
 int string msg_group_joined 0x0
 int string msg_group_renamed 0x0
+int string msg_invite_code_copied 0x0
 int string msg_load_failed 0x0
 int string msg_payment_recorded 0x0
 int string project_id 0x0

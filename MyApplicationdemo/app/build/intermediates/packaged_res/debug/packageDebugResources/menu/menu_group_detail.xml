@@ -5,4 +5,8 @@
         android:id="@+id/action_rename_group"
         android:title="@string/menu_rename_group"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_copy_invite_code"
+        android:title="@string/menu_copy_invite_code"
+        app:showAsAction="never" />
 </menu>

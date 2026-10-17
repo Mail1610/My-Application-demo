@@ -36,6 +36,7 @@
     <string name="dialog_title_edit_expense">編輯支出</string>
     <string name="dialog_title_join_group">加入群組</string>
     <string name="dialog_title_logout">確認登出</string>
+    <string name="dialog_title_members">群組成員</string>
     <string name="dialog_title_record_payment">記錄付款</string>
     <string name="dialog_title_rename_group">重新命名群組</string>
     <string name="dialog_title_set_nickname">設定你的暱稱</string>
@@ -91,6 +92,7 @@
     <string name="label_welcome_back">歡迎回來</string>
     <string name="label_will_receive">你將收到 $%1$.0f</string>
     <string name="menu_change_nickname">更改暱稱</string>
+    <string name="menu_copy_invite_code">複製邀請碼</string>
     <string name="menu_join_group">加入群組</string>
     <string name="menu_rename_group">重新命名</string>
     <string name="msg_expense_deleted">已刪除支出</string>
@@ -98,6 +100,7 @@
     <string name="msg_group_created">群組已建立！分享邀請碼給成員</string>
     <string name="msg_group_joined">已成功加入群組</string>
     <string name="msg_group_renamed">已重新命名</string>
+    <string name="msg_invite_code_copied">邀請碼已複製：%1$s</string>
     <string name="msg_load_failed">載入失敗，請重試</string>
     <string name="msg_payment_recorded">已記錄付款</string>
     <string name="project_id" translatable="false">demo-xian-app</string>

@@ -1,5 +1,8 @@
 package com.example.myapplicationdemo;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
@@ -40,6 +43,7 @@ public class GroupDetailActivity extends AppCompatActivity {
     private String groupId;
     private int memberCount;
     private String groupName;
+    private String inviteCode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +54,9 @@ public class GroupDetailActivity extends AppCompatActivity {
         groupId = getIntent().getStringExtra("group_id");
         groupName = getIntent().getStringExtra("group_name");
         memberCount = getIntent().getIntExtra("group_member_count", 2);
+        inviteCode = getIntent().getStringExtra("group_invite_code");
+
+        binding.tvMemberCount.setText(getString(R.string.label_member_count, memberCount));
 
         setSupportActionBar(binding.toolbar);
         if (getSupportActionBar() != null) {
@@ -65,6 +72,10 @@ public class GroupDetailActivity extends AppCompatActivity {
         viewModel = new ViewModelProvider(this).get(GroupDetailViewModel.class);
         viewModel.getExpenses().observe(this, this::onExpensesLoaded);
         viewModel.getBalance().observe(this, this::updateBalanceHeader);
+        viewModel.getMemberCount().observe(this, count -> {
+            memberCount = count;
+            binding.tvMemberCount.setText(getString(R.string.label_member_count, count));
+        });
         viewModel.getLoading().observe(this, loading ->
                 binding.swipeRefresh.setRefreshing(loading));
         viewModel.getErrorMessage().observe(this, msg -> {
@@ -75,6 +86,7 @@ public class GroupDetailActivity extends AppCompatActivity {
         viewModel.loadExpenses(groupId);
 
         binding.swipeRefresh.setOnRefreshListener(() -> viewModel.loadExpenses(groupId));
+        binding.tvMemberCount.setOnClickListener(v -> showMembersDialog());
 
         setupSwipeToDelete();
         binding.btnSettlement.setOnClickListener(v -> showSettlement());
@@ -96,8 +108,31 @@ public class GroupDetailActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.action_rename_group) {
             showRenameDialog();
             return true;
+        } else if (item.getItemId() == R.id.action_copy_invite_code) {
+            copyInviteCode();
+            return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void copyInviteCode() {
+        String code = inviteCode != null ? inviteCode : "";
+        ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        cm.setPrimaryClip(ClipData.newPlainText("invite_code", code));
+        Snackbar.make(binding.getRoot(),
+                getString(R.string.msg_invite_code_copied, code),
+                Snackbar.LENGTH_LONG).show();
+    }
+
+    private void showMembersDialog() {
+        viewModel.loadMembers(groupId, members -> {
+            String[] items = members.toArray(new String[0]);
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.dialog_title_members)
+                    .setItems(items, null)
+                    .setPositiveButton(R.string.btn_confirm, null)
+                    .show();
+        });
     }
 
     private void showRenameDialog() {
@@ -233,8 +268,8 @@ public class GroupDetailActivity extends AppCompatActivity {
         DialogAddExpenseBinding dialogBinding = DialogAddExpenseBinding.inflate(getLayoutInflater());
         dialogBinding.etDescription.setText(expense.getDescription());
         dialogBinding.etPayer.setText(expense.getPayer());
-        dialogBinding.etTotalAmount.setText(String.valueOf(expense.getTotalAmount()));
-        dialogBinding.etMyShare.setText(String.valueOf(expense.getMyShare()));
+        dialogBinding.etTotalAmount.setText(formatAmount(expense.getTotalAmount()));
+        dialogBinding.etMyShare.setText(formatAmount(expense.getMyShare()));
         dialogBinding.etDate.setText(expense.getDate());
 
         setupDatePicker(dialogBinding, expense.getDate());
@@ -342,6 +377,13 @@ public class GroupDetailActivity extends AppCompatActivity {
 
     private String getText(TextInputEditText et) {
         return et.getText() != null ? et.getText().toString().trim() : "";
+    }
+
+    private String formatAmount(double value) {
+        if (value == Math.floor(value) && !Double.isInfinite(value)) {
+            return String.valueOf((long) value);
+        }
+        return String.valueOf(value);
     }
 
     @Override

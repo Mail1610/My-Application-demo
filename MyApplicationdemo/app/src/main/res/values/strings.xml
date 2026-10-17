@@ -107,6 +107,13 @@
     <string name="msg_group_joined">已成功加入群組</string>
     <string name="error_invite_code_not_found">找不到此邀請碼，請確認後再試</string>
 
+    <!-- Invite code -->
+    <string name="menu_copy_invite_code">複製邀請碼</string>
+    <string name="msg_invite_code_copied">邀請碼已複製：%1$s</string>
+
+    <!-- Members -->
+    <string name="dialog_title_members">群組成員</string>
+
     <!-- Delete -->
     <string name="dialog_title_delete_group">刪除群組</string>
     <string name="dialog_msg_delete_group">確定要刪除「%1$s」？此群組的所有支出也會一併刪除。</string>

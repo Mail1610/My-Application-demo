@@ -23,6 +23,10 @@ public class GroupRepository {
         void onChanged(List<Group> groups);
     }
 
+    public interface OnMemberCountChangedListener {
+        void onChanged(int count);
+    }
+
     public ListenerRegistration addGroupsListener(String deviceId,
                                                    OnGroupsChangedListener listener) {
         return db.collection(COLLECTION)
@@ -34,6 +38,16 @@ public class GroupRepository {
                         list.add(docToGroup(doc, deviceId));
                     }
                     listener.onChanged(list);
+                });
+    }
+
+    public ListenerRegistration addGroupListener(String groupId,
+                                                  OnMemberCountChangedListener listener) {
+        return db.collection(COLLECTION).document(groupId)
+                .addSnapshotListener((doc, e) -> {
+                    if (e != null || doc == null || !doc.exists()) return;
+                    Long count = doc.getLong("memberCount");
+                    listener.onChanged(count != null ? count.intValue() : 0);
                 });
     }
 
@@ -70,6 +84,19 @@ public class GroupRepository {
         updates.put("memberCount", FieldValue.increment(1));
         Tasks.await(db.collection(COLLECTION).document(groupId).update(updates));
         return true;
+    }
+
+    /** Returns sorted list of nicknames in the group. Call from background thread. */
+    public List<String> getMembers(String groupId) throws Exception {
+        DocumentSnapshot doc = Tasks.await(db.collection(COLLECTION).document(groupId).get());
+        @SuppressWarnings("unchecked")
+        Map<String, Object> nicknames = (Map<String, Object>) doc.get("nicknames");
+        List<String> names = new ArrayList<>();
+        if (nicknames != null) {
+            for (Object v : nicknames.values()) names.add(String.valueOf(v));
+        }
+        Collections.sort(names);
+        return names;
     }
 
     public void renameGroup(String groupId, String newName) throws Exception {

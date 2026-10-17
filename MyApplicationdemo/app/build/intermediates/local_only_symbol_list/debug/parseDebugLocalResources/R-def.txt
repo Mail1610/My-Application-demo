@@ -23,6 +23,7 @@ drawable ic_launcher_background
 drawable ic_launcher_foreground
 drawable ic_logout
 id action_change_nickname
+id action_copy_invite_code
 id action_join_group
 id action_rename_group
 id btn_equal_split
@@ -111,6 +112,7 @@ string dialog_title_delete_group
 string dialog_title_edit_expense
 string dialog_title_join_group
 string dialog_title_logout
+string dialog_title_members
 string dialog_title_record_payment
 string dialog_title_rename_group
 string dialog_title_set_nickname
@@ -166,6 +168,7 @@ string label_settlement_settled
 string label_welcome_back
 string label_will_receive
 string menu_change_nickname
+string menu_copy_invite_code
 string menu_join_group
 string menu_rename_group
 string msg_expense_deleted
@@ -173,6 +176,7 @@ string msg_expense_updated
 string msg_group_created
 string msg_group_joined
 string msg_group_renamed
+string msg_invite_code_copied
 string msg_load_failed
 string msg_payment_recorded
 string project_id
