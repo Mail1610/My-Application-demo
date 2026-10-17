@@ -36,10 +36,6 @@
         "source": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-main-43:\\mipmap-mdpi\\ic_launcher.webp"
     },
     {
-        "merged": "com.example.myapplicationdemo.app-debug-41:/layout_activity_group_detail.xml.flat",
-        "source": "com.example.myapplicationdemo.app-main-43:/layout/activity_group_detail.xml"
-    },
-    {
         "merged": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-debug-41:\\xml_data_extraction_rules.xml.flat",
         "source": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-main-43:\\xml\\data_extraction_rules.xml"
     },
@@ -74,6 +70,14 @@
     {
         "merged": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-debug-41:\\mipmap-xxxhdpi_ic_launcher_round.webp.flat",
         "source": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-main-43:\\mipmap-xxxhdpi\\ic_launcher_round.webp"
+    },
+    {
+        "merged": "com.example.myapplicationdemo.app-debug-41:/menu_menu_group_detail.xml.flat",
+        "source": "com.example.myapplicationdemo.app-main-43:/menu/menu_group_detail.xml"
+    },
+    {
+        "merged": "com.example.myapplicationdemo.app-debug-41:/layout_dialog_change_invite_code.xml.flat",
+        "source": "com.example.myapplicationdemo.app-main-43:/layout/dialog_change_invite_code.xml"
     },
     {
         "merged": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-debug-41:\\layout_dialog_set_nickname.xml.flat",

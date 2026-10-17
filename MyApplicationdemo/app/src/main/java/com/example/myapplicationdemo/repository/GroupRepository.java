@@ -58,6 +58,8 @@ public class GroupRepository {
         data.put("inviteCode", code);
         data.put("members", Collections.singletonList(deviceId));
         data.put("memberCount", 1L);
+        data.put("creatorDeviceId", deviceId);
+        data.put("admins", Collections.singletonList(deviceId));
         Map<String, String> nicknames = new HashMap<>();
         nicknames.put(deviceId, nickname);
         data.put("nicknames", nicknames);
@@ -71,7 +73,7 @@ public class GroupRepository {
     public boolean joinGroup(String inviteCode, String nickname, String deviceId) throws Exception {
         QuerySnapshot snap = Tasks.await(
                 db.collection(COLLECTION)
-                        .whereEqualTo("inviteCode", inviteCode.toUpperCase())
+                        .whereEqualTo("inviteCode", inviteCode.trim().toUpperCase())
                         .limit(1)
                         .get()
         );
@@ -86,21 +88,86 @@ public class GroupRepository {
         return true;
     }
 
-    /** Returns sorted list of nicknames in the group. Call from background thread. */
-    public List<String> getMembers(String groupId) throws Exception {
+    /** Returns map of deviceId → nickname for all members. Call from background thread. */
+    public Map<String, String> getMembersMap(String groupId) throws Exception {
         DocumentSnapshot doc = Tasks.await(db.collection(COLLECTION).document(groupId).get());
         @SuppressWarnings("unchecked")
-        Map<String, Object> nicknames = (Map<String, Object>) doc.get("nicknames");
-        List<String> names = new ArrayList<>();
-        if (nicknames != null) {
-            for (Object v : nicknames.values()) names.add(String.valueOf(v));
+        Map<String, Object> rawNicknames = (Map<String, Object>) doc.get("nicknames");
+        @SuppressWarnings("unchecked")
+        List<String> admins = (List<String>) doc.get("admins");
+        String creatorId = doc.getString("creatorDeviceId");
+
+        Map<String, String> result = new HashMap<>();
+        if (rawNicknames != null) {
+            for (Map.Entry<String, Object> entry : rawNicknames.entrySet()) {
+                String deviceId = entry.getKey();
+                String nickname = String.valueOf(entry.getValue());
+                boolean isAdmin = (admins != null && admins.contains(deviceId))
+                        || deviceId.equals(creatorId);
+                result.put(deviceId, nickname + (isAdmin ? " ★" : ""));
+            }
         }
+        return result;
+    }
+
+    /** Returns sorted list of nicknames in the group. Call from background thread. */
+    public List<String> getMembers(String groupId) throws Exception {
+        Map<String, String> map = getMembersMap(groupId);
+        List<String> names = new ArrayList<>(map.values());
         Collections.sort(names);
         return names;
     }
 
+    /** Grant admin role to a member. Only current admins should call this. */
+    public void grantAdmin(String groupId, String targetDeviceId) throws Exception {
+        Tasks.await(db.collection(COLLECTION).document(groupId)
+                .update("admins", FieldValue.arrayUnion(targetDeviceId)));
+    }
+
+    /** Revoke admin role. Creator cannot be revoked. */
+    public void revokeAdmin(String groupId, String targetDeviceId,
+                            String creatorDeviceId) throws Exception {
+        if (targetDeviceId.equals(creatorDeviceId)) return;
+        Tasks.await(db.collection(COLLECTION).document(groupId)
+                .update("admins", FieldValue.arrayRemove(targetDeviceId)));
+    }
+
     public void renameGroup(String groupId, String newName) throws Exception {
         Tasks.await(db.collection(COLLECTION).document(groupId).update("name", newName));
+    }
+
+    /** Returns true if updated, false if the code is already taken by another group. */
+    public boolean updateInviteCode(String groupId, String newCode) throws Exception {
+        QuerySnapshot snap = Tasks.await(
+                db.collection(COLLECTION)
+                        .whereEqualTo("inviteCode", newCode)
+                        .limit(1)
+                        .get()
+        );
+        if (!snap.isEmpty() && !snap.getDocuments().get(0).getId().equals(groupId)) {
+            return false;
+        }
+        Tasks.await(db.collection(COLLECTION).document(groupId).update("inviteCode", newCode));
+        return true;
+    }
+
+    /**
+     * Returns remaining member count after leaving, or -1 if deviceId is not a member.
+     */
+    public int leaveGroup(String groupId, String deviceId) throws Exception {
+        DocumentSnapshot doc = Tasks.await(db.collection(COLLECTION).document(groupId).get());
+        @SuppressWarnings("unchecked")
+        List<String> members = (List<String>) doc.get("members");
+        if (members == null || !members.contains(deviceId)) return -1;
+        int remaining = members.size() - 1;
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("members", FieldValue.arrayRemove(deviceId));
+        updates.put("nicknames." + deviceId, FieldValue.delete());
+        updates.put("balances." + deviceId, FieldValue.delete());
+        updates.put("admins", FieldValue.arrayRemove(deviceId));
+        updates.put("memberCount", FieldValue.increment(-1));
+        Tasks.await(db.collection(COLLECTION).document(groupId).update(updates));
+        return remaining;
     }
 
     public void deleteGroup(String groupId) throws Exception {
@@ -117,6 +184,11 @@ public class GroupRepository {
         String name = doc.getString("name");
         Long memberCount = doc.getLong("memberCount");
         String inviteCode = doc.getString("inviteCode");
+        String creatorDeviceId = doc.getString("creatorDeviceId");
+        @SuppressWarnings("unchecked")
+        List<String> admins = (List<String>) doc.get("admins");
+        boolean isAdmin = (admins != null && admins.contains(deviceId))
+                || deviceId.equals(creatorDeviceId);
         @SuppressWarnings("unchecked")
         Map<String, Object> balances = (Map<String, Object>) doc.get("balances");
         double balance = 0.0;
@@ -129,7 +201,9 @@ public class GroupRepository {
                 name != null ? name : "",
                 memberCount != null ? memberCount.intValue() : 0,
                 balance,
-                inviteCode != null ? inviteCode : "");
+                inviteCode != null ? inviteCode : "",
+                creatorDeviceId != null ? creatorDeviceId : "",
+                isAdmin);
     }
 
     private String generateInviteCode() {

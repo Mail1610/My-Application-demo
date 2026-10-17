@@ -11,6 +11,8 @@ import androidx.viewbinding.ViewBinding;
 import androidx.viewbinding.ViewBindings;
 import com.example.myapplicationdemo.R;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import java.lang.NullPointerException;
@@ -23,6 +25,24 @@ public final class DialogAddExpenseBinding implements ViewBinding {
 
   @NonNull
   public final MaterialButton btnEqualSplit;
+
+  @NonNull
+  public final Chip chipEntertainment;
+
+  @NonNull
+  public final Chip chipFood;
+
+  @NonNull
+  public final ChipGroup chipGroupCategory;
+
+  @NonNull
+  public final Chip chipHousing;
+
+  @NonNull
+  public final Chip chipOther;
+
+  @NonNull
+  public final Chip chipTransport;
 
   @NonNull
   public final TextInputEditText etDate;
@@ -55,7 +75,9 @@ public final class DialogAddExpenseBinding implements ViewBinding {
   public final TextInputLayout tilTotalAmount;
 
   private DialogAddExpenseBinding(@NonNull ScrollView rootView,
-      @NonNull MaterialButton btnEqualSplit, @NonNull TextInputEditText etDate,
+      @NonNull MaterialButton btnEqualSplit, @NonNull Chip chipEntertainment,
+      @NonNull Chip chipFood, @NonNull ChipGroup chipGroupCategory, @NonNull Chip chipHousing,
+      @NonNull Chip chipOther, @NonNull Chip chipTransport, @NonNull TextInputEditText etDate,
       @NonNull TextInputEditText etDescription, @NonNull TextInputEditText etMyShare,
       @NonNull TextInputEditText etPayer, @NonNull TextInputEditText etTotalAmount,
       @NonNull TextInputLayout tilDate, @NonNull TextInputLayout tilDescription,
@@ -63,6 +85,12 @@ public final class DialogAddExpenseBinding implements ViewBinding {
       @NonNull TextInputLayout tilTotalAmount) {
     this.rootView = rootView;
     this.btnEqualSplit = btnEqualSplit;
+    this.chipEntertainment = chipEntertainment;
+    this.chipFood = chipFood;
+    this.chipGroupCategory = chipGroupCategory;
+    this.chipHousing = chipHousing;
+    this.chipOther = chipOther;
+    this.chipTransport = chipTransport;
     this.etDate = etDate;
     this.etDescription = etDescription;
     this.etMyShare = etMyShare;
@@ -105,6 +133,42 @@ public final class DialogAddExpenseBinding implements ViewBinding {
       id = R.id.btn_equal_split;
       MaterialButton btnEqualSplit = ViewBindings.findChildViewById(rootView, id);
       if (btnEqualSplit == null) {
+        break missingId;
+      }
+
+      id = R.id.chip_entertainment;
+      Chip chipEntertainment = ViewBindings.findChildViewById(rootView, id);
+      if (chipEntertainment == null) {
+        break missingId;
+      }
+
+      id = R.id.chip_food;
+      Chip chipFood = ViewBindings.findChildViewById(rootView, id);
+      if (chipFood == null) {
+        break missingId;
+      }
+
+      id = R.id.chip_group_category;
+      ChipGroup chipGroupCategory = ViewBindings.findChildViewById(rootView, id);
+      if (chipGroupCategory == null) {
+        break missingId;
+      }
+
+      id = R.id.chip_housing;
+      Chip chipHousing = ViewBindings.findChildViewById(rootView, id);
+      if (chipHousing == null) {
+        break missingId;
+      }
+
+      id = R.id.chip_other;
+      Chip chipOther = ViewBindings.findChildViewById(rootView, id);
+      if (chipOther == null) {
+        break missingId;
+      }
+
+      id = R.id.chip_transport;
+      Chip chipTransport = ViewBindings.findChildViewById(rootView, id);
+      if (chipTransport == null) {
         break missingId;
       }
 
@@ -168,9 +232,10 @@ public final class DialogAddExpenseBinding implements ViewBinding {
         break missingId;
       }
 
-      return new DialogAddExpenseBinding((ScrollView) rootView, btnEqualSplit, etDate,
-          etDescription, etMyShare, etPayer, etTotalAmount, tilDate, tilDescription, tilMyShare,
-          tilPayer, tilTotalAmount);
+      return new DialogAddExpenseBinding((ScrollView) rootView, btnEqualSplit, chipEntertainment,
+          chipFood, chipGroupCategory, chipHousing, chipOther, chipTransport, etDate, etDescription,
+          etMyShare, etPayer, etTotalAmount, tilDate, tilDescription, tilMyShare, tilPayer,
+          tilTotalAmount);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

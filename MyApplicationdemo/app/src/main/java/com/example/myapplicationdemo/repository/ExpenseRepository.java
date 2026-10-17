@@ -54,19 +54,21 @@ public class ExpenseRepository {
     }
 
     public Expense addExpense(String groupId, String description, String payer,
-                              double totalAmount, double myShare, String date) throws Exception {
+                              double totalAmount, double myShare, String date,
+                              String category) throws Exception {
         Map<String, Object> data = new HashMap<>();
         data.put("description", description);
         data.put("payer", payer);
         data.put("totalAmount", totalAmount);
         data.put("myShare", myShare);
         data.put("date", date);
+        data.put("category", category);
         data.put("createdAt", FieldValue.serverTimestamp());
         DocumentReference ref = db.collection("groups").document(groupId)
                 .collection("expenses").document();
         Tasks.await(ref.set(data));
         asyncRecompute(groupId);
-        return new Expense(ref.getId(), groupId, description, payer, totalAmount, myShare, date);
+        return new Expense(ref.getId(), groupId, description, payer, totalAmount, myShare, date, category);
     }
 
     public void deleteExpense(String groupId, String expenseId) throws Exception {
@@ -82,6 +84,7 @@ public class ExpenseRepository {
         data.put("totalAmount", expense.getTotalAmount());
         data.put("myShare", expense.getMyShare());
         data.put("date", expense.getDate());
+        data.put("category", expense.getCategory());
         Tasks.await(db.collection("groups").document(expense.getGroupId())
                 .collection("expenses").document(expense.getId()).update(data));
         asyncRecompute(expense.getGroupId());
@@ -89,7 +92,8 @@ public class ExpenseRepository {
 
     public void restoreExpense(Expense expense) throws Exception {
         addExpense(expense.getGroupId(), expense.getDescription(), expense.getPayer(),
-                expense.getTotalAmount(), expense.getMyShare(), expense.getDate());
+                expense.getTotalAmount(), expense.getMyShare(), expense.getDate(),
+                expense.getCategory());
     }
 
     private void asyncRecompute(String groupId) {
@@ -139,6 +143,7 @@ public class ExpenseRepository {
     private Expense docToExpense(DocumentSnapshot doc, String groupId) {
         Double total = doc.getDouble("totalAmount");
         Double share = doc.getDouble("myShare");
+        String category = doc.getString("category");
         return new Expense(
                 doc.getId(),
                 groupId,
@@ -146,6 +151,7 @@ public class ExpenseRepository {
                 doc.getString("payer") != null ? doc.getString("payer") : "",
                 total != null ? total : 0.0,
                 share != null ? share : 0.0,
-                doc.getString("date") != null ? doc.getString("date") : "");
+                doc.getString("date") != null ? doc.getString("date") : "",
+                category != null ? category : "其他");
     }
 }

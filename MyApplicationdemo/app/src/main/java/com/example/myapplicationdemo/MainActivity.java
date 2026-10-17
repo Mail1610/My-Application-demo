@@ -1,7 +1,9 @@
 package com.example.myapplicationdemo;
 
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -153,6 +155,23 @@ public class MainActivity extends AppCompatActivity {
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_join_group, null);
         TextInputLayout tilCode = dialogView.findViewById(R.id.til_invite_code);
         TextInputEditText etCode = dialogView.findViewById(R.id.et_invite_code);
+
+        etCode.addTextChangedListener(new TextWatcher() {
+            private boolean editing = false;
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override public void afterTextChanged(Editable s) {
+                if (editing) return;
+                String upper = s.toString().toUpperCase(java.util.Locale.ROOT);
+                if (!upper.equals(s.toString())) {
+                    editing = true;
+                    int cursor = etCode.getSelectionEnd();
+                    s.replace(0, s.length(), upper);
+                    etCode.setSelection(Math.min(cursor, upper.length()));
+                    editing = false;
+                }
+            }
+        });
 
         androidx.appcompat.app.AlertDialog dialog = new MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.dialog_title_join_group)

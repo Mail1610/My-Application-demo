@@ -17,6 +17,13 @@
     <color name="color_bg">#F2F4FF</color>
     <color name="color_surface">#FFFFFF</color>
 
+    <!-- Category -->
+    <color name="color_cat_food">#F4A261</color>
+    <color name="color_cat_housing">#4361EE</color>
+    <color name="color_cat_transport">#00A878</color>
+    <color name="color_cat_entertainment">#7B2FBE</color>
+    <color name="color_cat_other">#9E9E9E</color>
+
     <!-- Text -->
     <color name="color_text_primary">#1A1A2E</color>
     <color name="color_text_secondary">#6B7280</color>

@@ -114,10 +114,17 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
                 intent.putExtra("group_balance", group.getMyBalance());
                 intent.putExtra("group_member_count", group.getMemberCount());
                 intent.putExtra("group_invite_code", group.getInviteCode());
+                intent.putExtra("group_is_admin", group.isAdmin());
+                intent.putExtra("group_creator_device_id", group.getCreatorDeviceId());
                 ctx.startActivity(intent);
             });
 
             itemView.setOnLongClickListener(v -> {
+                if (!group.isAdmin()) {
+                    com.google.android.material.snackbar.Snackbar.make(
+                            itemView, R.string.error_admin_only, com.google.android.material.snackbar.Snackbar.LENGTH_SHORT).show();
+                    return true;
+                }
                 if (deleteListener != null) deleteListener.onDelete(group);
                 return true;
             });

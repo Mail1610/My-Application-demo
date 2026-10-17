@@ -14,9 +14,16 @@ import java.util.List;
 
 public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHolder> {
 
-    private static final int[] ACCENT_COLORS = {
-        0xFF4361EE, 0xFF7B2FBE, 0xFFE63946, 0xFF00A878, 0xFFF4A261
-    };
+    private static int categoryColor(String category) {
+        if (category == null) return 0xFF9E9E9E;
+        switch (category) {
+            case "食": return 0xFFF4A261;
+            case "住": return 0xFF4361EE;
+            case "行": return 0xFF00A878;
+            case "娛": return 0xFF7B2FBE;
+            default:   return 0xFF9E9E9E;
+        }
+    }
 
     public interface OnExpenseEditListener {
         void onEdit(Expense expense);
@@ -81,7 +88,7 @@ public class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ViewHold
 
         void bind(Expense expense, int position, OnExpenseEditListener editListener) {
             Context ctx = itemView.getContext();
-            binding.viewAccent.setBackgroundColor(ACCENT_COLORS[position % ACCENT_COLORS.length]);
+            binding.viewAccent.setBackgroundColor(categoryColor(expense.getCategory()));
 
             String[] parts = expense.getDate().split("/");
             if (parts.length == 2) {

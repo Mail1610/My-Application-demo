@@ -22,8 +22,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.myapplicationdemo.adapter.ExpenseAdapter;
 import com.example.myapplicationdemo.databinding.ActivityGroupDetailBinding;
 import com.example.myapplicationdemo.databinding.DialogAddExpenseBinding;
+import com.example.myapplicationdemo.databinding.DialogChangeInviteCodeBinding;
 import com.example.myapplicationdemo.databinding.DialogRenameGroupBinding;
 import com.example.myapplicationdemo.model.Expense;
+import com.example.myapplicationdemo.utils.SessionManager;
 import com.example.myapplicationdemo.viewmodel.GroupDetailViewModel;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -44,6 +46,9 @@ public class GroupDetailActivity extends AppCompatActivity {
     private int memberCount;
     private String groupName;
     private String inviteCode;
+    private String deviceId;
+    private boolean isAdmin;
+    private String creatorDeviceId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +60,9 @@ public class GroupDetailActivity extends AppCompatActivity {
         groupName = getIntent().getStringExtra("group_name");
         memberCount = getIntent().getIntExtra("group_member_count", 2);
         inviteCode = getIntent().getStringExtra("group_invite_code");
+        deviceId = new SessionManager(this).getDeviceId();
+        isAdmin = getIntent().getBooleanExtra("group_is_admin", false);
+        creatorDeviceId = getIntent().getStringExtra("group_creator_device_id");
 
         binding.tvMemberCount.setText(getString(R.string.label_member_count, memberCount));
 
@@ -100,6 +108,13 @@ public class GroupDetailActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_group_detail, menu);
+        // Admin-only items
+        menu.findItem(R.id.action_rename_group).setVisible(isAdmin);
+        menu.findItem(R.id.action_change_invite_code).setVisible(isAdmin);
+        menu.findItem(R.id.action_manage_members).setVisible(isAdmin);
+        menu.findItem(R.id.action_delete_group).setVisible(isAdmin);
+        // Non-admin shows leave; admin deletes instead
+        menu.findItem(R.id.action_leave_group).setVisible(!isAdmin);
         return true;
     }
 
@@ -110,6 +125,18 @@ public class GroupDetailActivity extends AppCompatActivity {
             return true;
         } else if (item.getItemId() == R.id.action_copy_invite_code) {
             copyInviteCode();
+            return true;
+        } else if (item.getItemId() == R.id.action_change_invite_code) {
+            showChangeInviteCodeDialog();
+            return true;
+        } else if (item.getItemId() == R.id.action_leave_group) {
+            showLeaveGroupDialog();
+            return true;
+        } else if (item.getItemId() == R.id.action_manage_members) {
+            showManageMembersDialog();
+            return true;
+        } else if (item.getItemId() == R.id.action_delete_group) {
+            showDeleteGroupDialog();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -122,6 +149,127 @@ public class GroupDetailActivity extends AppCompatActivity {
         Snackbar.make(binding.getRoot(),
                 getString(R.string.msg_invite_code_copied, code),
                 Snackbar.LENGTH_LONG).show();
+    }
+
+    private void showChangeInviteCodeDialog() {
+        DialogChangeInviteCodeBinding dialogBinding =
+                DialogChangeInviteCodeBinding.inflate(getLayoutInflater());
+        dialogBinding.etInviteCode.setText(inviteCode);
+
+        AlertDialog dialog = new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.dialog_title_change_invite_code)
+                .setView(dialogBinding.getRoot())
+                .setPositiveButton(R.string.btn_confirm, null)
+                .setNegativeButton(R.string.btn_cancel, null)
+                .show();
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            String newCode = getText(dialogBinding.etInviteCode).toUpperCase(Locale.ROOT);
+            if (newCode.length() != 6 || !newCode.matches("[A-Z0-9]{6}")) {
+                dialogBinding.tilInviteCode.setError(getString(R.string.error_invite_code_invalid));
+                return;
+            }
+            dialogBinding.tilInviteCode.setError(null);
+            dialog.dismiss();
+            viewModel.changeInviteCode(groupId, newCode, new GroupDetailViewModel.ChangeInviteCodeCallback() {
+                @Override
+                public void onSuccess(String updated) {
+                    inviteCode = updated;
+                    Snackbar.make(binding.getRoot(),
+                            getString(R.string.msg_invite_code_updated, updated),
+                            Snackbar.LENGTH_LONG).show();
+                }
+                @Override
+                public void onCodeTaken() {
+                    Snackbar.make(binding.getRoot(),
+                            R.string.error_invite_code_taken,
+                            Snackbar.LENGTH_LONG).show();
+                }
+                @Override
+                public void onError() {
+                    Snackbar.make(binding.getRoot(),
+                            R.string.msg_load_failed,
+                            Snackbar.LENGTH_LONG).show();
+                }
+            });
+        });
+    }
+
+    private void showLeaveGroupDialog() {
+        if (memberCount <= 1) {
+            Snackbar.make(binding.getRoot(),
+                    R.string.error_cannot_leave_last_member,
+                    Snackbar.LENGTH_LONG).show();
+            return;
+        }
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.dialog_title_leave_group)
+                .setMessage(getString(R.string.dialog_msg_leave_group, groupName))
+                .setPositiveButton(R.string.menu_leave_group, (d, w) -> {
+                    viewModel.leaveGroup(groupId, deviceId, new GroupDetailViewModel.LeaveGroupCallback() {
+                        @Override
+                        public void onResult(int remainingMembers) {
+                            Snackbar.make(binding.getRoot(),
+                                    R.string.msg_group_left,
+                                    Snackbar.LENGTH_SHORT).show();
+                            finish();
+                        }
+                        @Override
+                        public void onError() {
+                            Snackbar.make(binding.getRoot(),
+                                    R.string.msg_load_failed,
+                                    Snackbar.LENGTH_LONG).show();
+                        }
+                    });
+                })
+                .setNegativeButton(R.string.btn_cancel, null)
+                .show();
+    }
+
+    private void showDeleteGroupDialog() {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.dialog_title_delete_group)
+                .setMessage(getString(R.string.dialog_msg_delete_group, groupName))
+                .setPositiveButton(R.string.btn_delete, (d, w) -> {
+                    viewModel.deleteGroup(groupId);
+                    finish();
+                })
+                .setNegativeButton(R.string.btn_cancel, null)
+                .show();
+    }
+
+    private void showManageMembersDialog() {
+        viewModel.loadMembersWithIds(groupId, membersMap -> {
+            String[] deviceIds = membersMap.keySet().toArray(new String[0]);
+            String[] displayNames = new String[deviceIds.length];
+            for (int i = 0; i < deviceIds.length; i++) {
+                displayNames[i] = membersMap.get(deviceIds[i]);
+            }
+
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.dialog_title_manage_members)
+                    .setItems(displayNames, (d, which) -> {
+                        String targetId = deviceIds[which];
+                        if (targetId.equals(deviceId)) return;
+                        boolean targetIsAdmin = displayNames[which].endsWith("★");
+                        if (targetIsAdmin) {
+                            if (targetId.equals(creatorDeviceId)) {
+                                Snackbar.make(binding.getRoot(),
+                                        "無法取消創建者的管理員權限", Snackbar.LENGTH_SHORT).show();
+                                return;
+                            }
+                            viewModel.revokeAdmin(groupId, targetId, creatorDeviceId);
+                            Snackbar.make(binding.getRoot(),
+                                    R.string.msg_admin_revoked, Snackbar.LENGTH_SHORT).show();
+                        } else {
+                            viewModel.grantAdmin(groupId, targetId);
+                            Snackbar.make(binding.getRoot(),
+                                    R.string.msg_admin_granted, Snackbar.LENGTH_SHORT).show();
+                        }
+                    })
+                    .setPositiveButton(R.string.btn_confirm, null)
+                    .show();
+        });
     }
 
     private void showMembersDialog() {
@@ -271,6 +419,7 @@ public class GroupDetailActivity extends AppCompatActivity {
         dialogBinding.etTotalAmount.setText(formatAmount(expense.getTotalAmount()));
         dialogBinding.etMyShare.setText(formatAmount(expense.getMyShare()));
         dialogBinding.etDate.setText(expense.getDate());
+        dialogBinding.chipGroupCategory.check(categoryToChipId(expense.getCategory()));
 
         setupDatePicker(dialogBinding, expense.getDate());
         setupEqualSplitButton(dialogBinding);
@@ -358,13 +507,14 @@ public class GroupDetailActivity extends AppCompatActivity {
         String finalDate = TextUtils.isEmpty(date)
                 ? new SimpleDateFormat("MM/dd", Locale.getDefault()).format(new Date())
                 : date;
+        String category = chipIdToCategory(dialogBinding.chipGroupCategory.getCheckedChipId());
 
         dialog.dismiss();
         if (existing != null) {
-            viewModel.updateExpense(existing, desc, payer, total, share, finalDate);
+            viewModel.updateExpense(existing, desc, payer, total, share, finalDate, category);
             Snackbar.make(binding.getRoot(), R.string.msg_expense_updated, Snackbar.LENGTH_SHORT).show();
         } else {
-            viewModel.addExpense(desc, payer, total, share, finalDate);
+            viewModel.addExpense(desc, payer, total, share, finalDate, category);
         }
         return true;
     }
@@ -377,6 +527,25 @@ public class GroupDetailActivity extends AppCompatActivity {
 
     private String getText(TextInputEditText et) {
         return et.getText() != null ? et.getText().toString().trim() : "";
+    }
+
+    private int categoryToChipId(String category) {
+        if (category == null) return R.id.chip_food;
+        switch (category) {
+            case "住": return R.id.chip_housing;
+            case "行": return R.id.chip_transport;
+            case "娛": return R.id.chip_entertainment;
+            case "其他": return R.id.chip_other;
+            default:   return R.id.chip_food;
+        }
+    }
+
+    private String chipIdToCategory(int chipId) {
+        if (chipId == R.id.chip_housing) return "住";
+        if (chipId == R.id.chip_transport) return "行";
+        if (chipId == R.id.chip_entertainment) return "娛";
+        if (chipId == R.id.chip_other) return "其他";
+        return "食";
     }
 
     private String formatAmount(double value) {

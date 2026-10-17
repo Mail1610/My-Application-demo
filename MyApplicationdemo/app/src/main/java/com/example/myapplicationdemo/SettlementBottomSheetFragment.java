@@ -121,7 +121,7 @@ public class SettlementBottomSheetFragment extends BottomSheetDialogFragment {
 
             new Thread(() -> {
                 try {
-                    repo.addExpense(groupId, paymentLabel, payTo, finalAmount, finalAmount, today);
+                    repo.addExpense(groupId, paymentLabel, payTo, finalAmount, finalAmount, today, "其他");
                     if (!isAdded()) return;
                     requireActivity().runOnUiThread(() -> {
                         Bundle result = new Bundle();

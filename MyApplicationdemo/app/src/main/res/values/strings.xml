@@ -110,14 +110,44 @@
     <!-- Invite code -->
     <string name="menu_copy_invite_code">複製邀請碼</string>
     <string name="msg_invite_code_copied">邀請碼已複製：%1$s</string>
+    <string name="menu_change_invite_code">修改邀請碼</string>
+    <string name="dialog_title_change_invite_code">修改邀請碼</string>
+    <string name="hint_new_invite_code">新邀請碼（6碼英數字）</string>
+    <string name="msg_invite_code_updated">邀請碼已更新：%1$s</string>
+    <string name="error_invite_code_invalid">請輸入6碼英數字</string>
+    <string name="error_invite_code_taken">此邀請碼已被使用，請換一個</string>
+
+    <!-- Category -->
+    <string name="label_category">分類</string>
+    <string name="category_food">食</string>
+    <string name="category_housing">住</string>
+    <string name="category_transport">行</string>
+    <string name="category_entertainment">娛</string>
+    <string name="category_other">其他</string>
 
     <!-- Members -->
     <string name="dialog_title_members">群組成員</string>
+
+    <!-- Leave group -->
+    <string name="menu_leave_group">離開群組</string>
+    <string name="dialog_title_leave_group">離開群組</string>
+    <string name="dialog_msg_leave_group">確定要離開「%1$s」？你的帳目記錄將保留，但你將無法再查看此群組。</string>
+    <string name="msg_group_left">已離開群組</string>
+    <string name="error_cannot_leave_last_member">你是最後一位成員，請直接刪除群組。</string>
 
     <!-- Delete -->
     <string name="dialog_title_delete_group">刪除群組</string>
     <string name="dialog_msg_delete_group">確定要刪除「%1$s」？此群組的所有支出也會一併刪除。</string>
     <string name="btn_delete">刪除</string>
+    <string name="error_admin_only">只有管理員才能執行此操作</string>
+    <string name="menu_delete_group">刪除群組</string>
+    <string name="menu_manage_members">管理成員</string>
+    <string name="dialog_title_manage_members">管理成員</string>
+    <string name="btn_grant_admin">設為管理員</string>
+    <string name="btn_revoke_admin">取消管理員</string>
+    <string name="msg_admin_granted">已設為管理員</string>
+    <string name="msg_admin_revoked">已取消管理員</string>
+    <string name="label_admin_badge"> ★</string>
     <string name="msg_expense_deleted">已刪除支出</string>
     <string name="btn_undo">復原</string>
 </resources>

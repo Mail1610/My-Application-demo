@@ -12,10 +12,6 @@
         "source": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-main-43:\\layout\\dialog_set_nickname.xml"
     },
     {
-        "merged": "com.example.myapplicationdemo.app-mergeDebugResources-40:/layout/activity_group_detail.xml",
-        "source": "com.example.myapplicationdemo.app-main-43:/layout/activity_group_detail.xml"
-    },
-    {
         "merged": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-mergeDebugResources-40:\\layout\\dialog_add_expense.xml",
         "source": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-main-43:\\layout\\dialog_add_expense.xml"
     },
@@ -42,6 +38,10 @@
     {
         "merged": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-mergeDebugResources-40:\\layout\\fragment_settlement_bottom_sheet.xml",
         "source": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-main-43:\\layout\\fragment_settlement_bottom_sheet.xml"
+    },
+    {
+        "merged": "com.example.myapplicationdemo.app-mergeDebugResources-40:/layout/dialog_change_invite_code.xml",
+        "source": "com.example.myapplicationdemo.app-main-43:/layout/dialog_change_invite_code.xml"
     },
     {
         "merged": "C:\\Users\\ian\\.gradle\\daemon\\9.5.0\\com.example.myapplicationdemo.app-mergeDebugResources-40:\\layout\\activity_group_detail.xml",

@@ -53,10 +53,10 @@ public class GroupDetailViewModel extends AndroidViewModel {
     }
 
     public void addExpense(String description, String payer,
-                           double totalAmount, double myShare, String date) {
+                           double totalAmount, double myShare, String date, String category) {
         new Thread(() -> {
             try {
-                repository.addExpense(currentGroupId, description, payer, totalAmount, myShare, date);
+                repository.addExpense(currentGroupId, description, payer, totalAmount, myShare, date, category);
             } catch (Exception e) {
                 LogUtils.error("新增支出失敗", e);
             }
@@ -64,9 +64,9 @@ public class GroupDetailViewModel extends AndroidViewModel {
     }
 
     public void updateExpense(Expense old, String description, String payer,
-                              double totalAmount, double myShare, String date) {
+                              double totalAmount, double myShare, String date, String category) {
         Expense updated = new Expense(old.getId(), old.getGroupId(),
-                description, payer, totalAmount, myShare, date);
+                description, payer, totalAmount, myShare, date, category);
         new Thread(() -> {
             try {
                 repository.updateExpense(updated);
@@ -100,6 +100,10 @@ public class GroupDetailViewModel extends AndroidViewModel {
         void onResult(List<String> members);
     }
 
+    public interface MembersMapCallback {
+        void onResult(java.util.Map<String, String> membersMap);
+    }
+
     public void loadMembers(String groupId, MembersCallback callback) {
         new Thread(() -> {
             try {
@@ -112,12 +116,86 @@ public class GroupDetailViewModel extends AndroidViewModel {
         }).start();
     }
 
+    public void loadMembersWithIds(String groupId, MembersMapCallback callback) {
+        new Thread(() -> {
+            try {
+                java.util.Map<String, String> map = groupRepository.getMembersMap(groupId);
+                new android.os.Handler(android.os.Looper.getMainLooper())
+                        .post(() -> callback.onResult(map));
+            } catch (Exception e) {
+                LogUtils.error("載入成員失敗", e);
+            }
+        }).start();
+    }
+
+    public interface LeaveGroupCallback {
+        void onResult(int remainingMembers);
+        void onError();
+    }
+
+    public void leaveGroup(String groupId, String deviceId, LeaveGroupCallback callback) {
+        new Thread(() -> {
+            try {
+                int remaining = groupRepository.leaveGroup(groupId, deviceId);
+                new android.os.Handler(android.os.Looper.getMainLooper())
+                        .post(() -> callback.onResult(remaining));
+            } catch (Exception e) {
+                LogUtils.error("離開群組失敗", e);
+                new android.os.Handler(android.os.Looper.getMainLooper())
+                        .post(callback::onError);
+            }
+        }).start();
+    }
+
+    public void deleteGroup(String groupId) {
+        new Thread(() -> {
+            try { groupRepository.deleteGroup(groupId); }
+            catch (Exception e) { LogUtils.error("刪除群組失敗", e); }
+        }).start();
+    }
+
+    public void grantAdmin(String groupId, String targetDeviceId) {
+        new Thread(() -> {
+            try { groupRepository.grantAdmin(groupId, targetDeviceId); }
+            catch (Exception e) { LogUtils.error("設為管理員失敗", e); }
+        }).start();
+    }
+
+    public void revokeAdmin(String groupId, String targetDeviceId, String creatorDeviceId) {
+        new Thread(() -> {
+            try { groupRepository.revokeAdmin(groupId, targetDeviceId, creatorDeviceId); }
+            catch (Exception e) { LogUtils.error("取消管理員失敗", e); }
+        }).start();
+    }
+
     public void renameGroup(String groupId, String newName) {
         new Thread(() -> {
             try {
                 groupRepository.renameGroup(groupId, newName);
             } catch (Exception e) {
                 LogUtils.error("重新命名群組失敗", e);
+            }
+        }).start();
+    }
+
+    public interface ChangeInviteCodeCallback {
+        void onSuccess(String newCode);
+        void onCodeTaken();
+        void onError();
+    }
+
+    public void changeInviteCode(String groupId, String newCode, ChangeInviteCodeCallback callback) {
+        new Thread(() -> {
+            try {
+                boolean updated = groupRepository.updateInviteCode(groupId, newCode);
+                new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                    if (updated) callback.onSuccess(newCode);
+                    else callback.onCodeTaken();
+                });
+            } catch (Exception e) {
+                LogUtils.error("修改邀請碼失敗", e);
+                new android.os.Handler(android.os.Looper.getMainLooper())
+                        .post(callback::onError);
             }
         }).start();
     }
