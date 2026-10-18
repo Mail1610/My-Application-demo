@@ -31,6 +31,8 @@ public class SettlementBottomSheetFragment extends BottomSheetDialogFragment {
     private static final String ARG_GROUP_ID = "group_id";
     private static final String ARG_MEMBER_COUNT = "member_count";
 
+    private String suggestedPayee = null;
+
     public static SettlementBottomSheetFragment newInstance(String groupId, int memberCount) {
         SettlementBottomSheetFragment f = new SettlementBottomSheetFragment();
         Bundle args = new Bundle();
@@ -86,6 +88,11 @@ public class SettlementBottomSheetFragment extends BottomSheetDialogFragment {
         TextInputEditText etPayTo = dialogView.findViewById(R.id.et_pay_to);
         TextInputLayout tilAmount = dialogView.findViewById(R.id.til_payment_amount);
         TextInputEditText etAmount = dialogView.findViewById(R.id.et_payment_amount);
+
+        if (suggestedPayee != null && !suggestedPayee.isEmpty()) {
+            etPayTo.setText(suggestedPayee);
+            etPayTo.setSelection(suggestedPayee.length());
+        }
 
         androidx.appcompat.app.AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.dialog_title_record_payment)
@@ -163,6 +170,16 @@ public class SettlementBottomSheetFragment extends BottomSheetDialogFragment {
             }
         }
 
+        // Update suggested payee: person with the largest outstanding debt
+        suggestedPayee = null;
+        double maxDebt = 0;
+        for (Map.Entry<String, Double> entry : iOwe.entrySet()) {
+            if (entry.getValue() > maxDebt) {
+                maxDebt = entry.getValue();
+                suggestedPayee = entry.getKey();
+            }
+        }
+
         if (balance > 0) {
             tvNetBalance.setText(getString(R.string.label_balance_net_positive, balance));
             tvNetBalance.setTextColor(ContextCompat.getColor(requireContext(), R.color.color_positive));
@@ -174,23 +191,21 @@ public class SettlementBottomSheetFragment extends BottomSheetDialogFragment {
             tvNetBalance.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
         }
 
-        boolean hasItems = false;
+        // When balance is zero, skip individual items — show settled state directly
+        if (balance == 0) {
+            tvSettled.setVisibility(View.VISIBLE);
+            return;
+        }
 
         for (Map.Entry<String, Double> entry : iOwe.entrySet()) {
             if (entry.getValue() > 0) {
                 addRow(llItems, getString(R.string.label_settlement_i_owe,
                         entry.getKey(), entry.getValue()), false);
-                hasItems = true;
             }
         }
 
         if (othersOweMe > 0) {
             addRow(llItems, getString(R.string.label_settlement_others_owe, othersOweMe), true);
-            hasItems = true;
-        }
-
-        if (!hasItems) {
-            tvSettled.setVisibility(View.VISIBLE);
         }
     }
 
