@@ -23,6 +23,7 @@
 | `e5e5b2e` | 2026-10-18 | 修復多人群組餘額計算錯誤（adderNickname）|
 | `060013b` | 2026-10-18 | 改善結算清單 UX（已結清提示 + 自動帶入付款對象）|
 | `90d8243` | 2026-10-18 | OOP 重構分攤計算 + 修正狀態列遮擋 |
+| （新）| 2026-10-18 | 新增踢出成員 + 更改暱稱 |
 
 ---
 
@@ -252,3 +253,26 @@
 `activity_main.xml` 與 `activity_group_detail.xml` 的 `AppBarLayout` 加入 `android:fitsSystemWindows="true"`。
 
 **影響範圍：** `Expense.java`、`activity_main.xml`、`activity_group_detail.xml`
+
+---
+
+### 新增踢出成員 + 更改暱稱 `（未命名 commit）`
+
+**新功能 1 — 踢出成員：**
+管理員可在「管理成員」對話框長按成員，選擇踢出（창建者受保護，不可被踢）。踢出後即時從 Firestore 移除該成員的所有資料（members、nicknames、balances、admins，memberCount -1）。
+
+**新功能 2 — 更改暱稱：**
+所有成員均可透過選單「更改暱稱」修改自己在群組內的暱稱，修改後即時同步至 Firestore 並更新本地 SessionManager 快取。
+
+**實作：**
+- `GroupRepository` 新增 `kickMember(groupId, targetDeviceId)` 方法
+- `GroupRepository` 新增 `updateNickname(groupId, deviceId, newNickname)` 方法
+- `GroupDetailViewModel` 新增 `KickMemberCallback` interface 及 `kickMember()` 方法
+- `GroupDetailViewModel` 新增 `UpdateNicknameCallback` interface 及 `updateNickname()` 方法
+- `GroupDetailActivity.showManageMembersDialog()` 重寫：點擊非自身成員呼叫 `showMemberActionDialog()`
+- `GroupDetailActivity.showMemberActionDialog()` 新增：兩層對話框（動作選單 → 確認踢出）
+- `GroupDetailActivity.showChangeNicknameDialog()` 新增：使用 `DialogSetNicknameBinding`，預填當前暱稱
+- `menu_group_detail.xml` 新增 `action_change_nickname` 選單項目
+- `strings.xml` 新增 kick/nickname 相關字串
+
+**影響範圍：** `GroupRepository.java`、`GroupDetailViewModel.java`、`GroupDetailActivity.java`、`menu_group_detail.xml`、`strings.xml`
