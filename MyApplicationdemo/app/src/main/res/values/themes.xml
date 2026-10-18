@@ -20,6 +20,12 @@
         <item name="materialButtonStyle">@style/Widget.App.Button</item>
     </style>
 
+    <style name="Theme.MyApplicationDemo.Splash" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:windowBackground">@drawable/bg_splash</item>
+        <item name="android:statusBarColor">#4361EE</item>
+        <item name="android:windowFullscreen">false</item>
+    </style>
+
     <style name="Widget.App.Button" parent="Widget.MaterialComponents.Button">
         <item name="cornerRadius">12dp</item>
     </style>
