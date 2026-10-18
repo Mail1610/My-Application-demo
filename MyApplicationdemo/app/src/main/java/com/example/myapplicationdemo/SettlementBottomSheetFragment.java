@@ -59,6 +59,7 @@ public class SettlementBottomSheetFragment extends BottomSheetDialogFragment {
         TextView tvNetBalance = view.findViewById(R.id.tv_net_balance);
         LinearLayout llItems = view.findViewById(R.id.ll_settlement_items);
         TextView tvSettled = view.findViewById(R.id.tv_settled);
+        TextView tvWaiting = view.findViewById(R.id.tv_waiting_payment);
         MaterialButton btnRecordPayment = view.findViewById(R.id.btn_record_payment);
 
         String myName = new SessionManager(requireContext()).getUsername();
@@ -69,18 +70,19 @@ public class SettlementBottomSheetFragment extends BottomSheetDialogFragment {
                 List<Expense> expenses = repo.getByGroupId(groupId);
                 if (!isAdded()) return;
                 requireActivity().runOnUiThread(() ->
-                        renderSettlement(tvNetBalance, llItems, tvSettled, expenses, myName, memberCount));
+                        renderSettlement(tvNetBalance, llItems, tvSettled, tvWaiting, btnRecordPayment, expenses, myName, memberCount));
             } catch (Exception e) {
                 LogUtils.error("載入結算失敗", e);
             }
         }).start();
 
         btnRecordPayment.setOnClickListener(v ->
-                showRecordPaymentDialog(groupId, repo, myName, memberCount, tvNetBalance, llItems, tvSettled));
+                showRecordPaymentDialog(groupId, repo, myName, memberCount, tvNetBalance, llItems, tvSettled, tvWaiting, btnRecordPayment));
     }
 
     private void showRecordPaymentDialog(String groupId, ExpenseRepository repo, String myName,
-            int memberCount, TextView tvNetBalance, LinearLayout llItems, TextView tvSettled) {
+            int memberCount, TextView tvNetBalance, LinearLayout llItems, TextView tvSettled,
+            TextView tvWaiting, MaterialButton btnRecordPayment) {
         View dialogView = LayoutInflater.from(requireContext())
                 .inflate(R.layout.dialog_record_payment, null, false);
 
@@ -142,7 +144,7 @@ public class SettlementBottomSheetFragment extends BottomSheetDialogFragment {
                         getParentFragmentManager().setFragmentResult("settlement_result", result);
                         llItems.removeAllViews();
                         tvSettled.setVisibility(View.GONE);
-                        renderSettlement(tvNetBalance, llItems, tvSettled, updated, myName, memberCount);
+                        renderSettlement(tvNetBalance, llItems, tvSettled, tvWaiting, btnRecordPayment, updated, myName, memberCount);
                     });
                 } catch (Exception e) {
                     LogUtils.error("記錄付款失敗", e);
@@ -152,7 +154,8 @@ public class SettlementBottomSheetFragment extends BottomSheetDialogFragment {
     }
 
     private void renderSettlement(TextView tvNetBalance, LinearLayout llItems,
-                                  TextView tvSettled, List<Expense> expenses,
+                                  TextView tvSettled, TextView tvWaiting,
+                                  MaterialButton btnRecordPayment, List<Expense> expenses,
                                   String myName, int memberCount) {
         double balance = 0;
         Map<String, Double> iOwe = new LinkedHashMap<>();
@@ -183,12 +186,18 @@ public class SettlementBottomSheetFragment extends BottomSheetDialogFragment {
         if (balance > 0) {
             tvNetBalance.setText(getString(R.string.label_balance_net_positive, balance));
             tvNetBalance.setTextColor(ContextCompat.getColor(requireContext(), R.color.color_positive));
+            btnRecordPayment.setVisibility(View.GONE);
+            tvWaiting.setVisibility(View.VISIBLE);
         } else if (balance < 0) {
             tvNetBalance.setText(getString(R.string.label_balance_net_negative, Math.abs(balance)));
             tvNetBalance.setTextColor(ContextCompat.getColor(requireContext(), R.color.color_negative));
+            btnRecordPayment.setVisibility(View.VISIBLE);
+            tvWaiting.setVisibility(View.GONE);
         } else {
             tvNetBalance.setText(R.string.label_net_balance_placeholder);
             tvNetBalance.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
+            btnRecordPayment.setVisibility(View.GONE);
+            tvWaiting.setVisibility(View.GONE);
         }
 
         // When balance is zero, skip individual items — show settled state directly

@@ -64,6 +64,18 @@
         android:textSize="16sp"
         android:visibility="gone" />
 
+    <!-- Waiting for payer state -->
+    <TextView
+        android:id="@+id/tv_waiting_payment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="24dp"
+        android:text="@string/label_waiting_payment"
+        android:textColor="@color/color_text_hint"
+        android:textSize="15sp"
+        android:visibility="gone" />
+
     <!-- Record payment button -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_record_payment"

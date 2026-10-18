@@ -157,4 +157,5 @@
     <string name="label_admin_badge"> ★</string>
     <string name="msg_expense_deleted">已刪除支出</string>
     <string name="btn_undo">復原</string>
+    <string name="label_waiting_payment">等待對方來記錄付款</string>
 </resources>
