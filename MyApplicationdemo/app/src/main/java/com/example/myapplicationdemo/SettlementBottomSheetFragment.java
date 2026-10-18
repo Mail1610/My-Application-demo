@@ -29,11 +29,13 @@ import java.util.Map;
 public class SettlementBottomSheetFragment extends BottomSheetDialogFragment {
 
     private static final String ARG_GROUP_ID = "group_id";
+    private static final String ARG_MEMBER_COUNT = "member_count";
 
-    public static SettlementBottomSheetFragment newInstance(String groupId) {
+    public static SettlementBottomSheetFragment newInstance(String groupId, int memberCount) {
         SettlementBottomSheetFragment f = new SettlementBottomSheetFragment();
         Bundle args = new Bundle();
         args.putString(ARG_GROUP_ID, groupId);
+        args.putInt(ARG_MEMBER_COUNT, memberCount);
         f.setArguments(args);
         return f;
     }
@@ -51,6 +53,7 @@ public class SettlementBottomSheetFragment extends BottomSheetDialogFragment {
         super.onViewCreated(view, savedInstanceState);
 
         String groupId = requireArguments().getString(ARG_GROUP_ID);
+        int memberCount = requireArguments().getInt(ARG_MEMBER_COUNT, 2);
         TextView tvNetBalance = view.findViewById(R.id.tv_net_balance);
         LinearLayout llItems = view.findViewById(R.id.ll_settlement_items);
         TextView tvSettled = view.findViewById(R.id.tv_settled);
@@ -64,18 +67,18 @@ public class SettlementBottomSheetFragment extends BottomSheetDialogFragment {
                 List<Expense> expenses = repo.getByGroupId(groupId);
                 if (!isAdded()) return;
                 requireActivity().runOnUiThread(() ->
-                        renderSettlement(tvNetBalance, llItems, tvSettled, expenses, myName));
+                        renderSettlement(tvNetBalance, llItems, tvSettled, expenses, myName, memberCount));
             } catch (Exception e) {
                 LogUtils.error("載入結算失敗", e);
             }
         }).start();
 
         btnRecordPayment.setOnClickListener(v ->
-                showRecordPaymentDialog(groupId, repo, myName, tvNetBalance, llItems, tvSettled));
+                showRecordPaymentDialog(groupId, repo, myName, memberCount, tvNetBalance, llItems, tvSettled));
     }
 
     private void showRecordPaymentDialog(String groupId, ExpenseRepository repo, String myName,
-            TextView tvNetBalance, LinearLayout llItems, TextView tvSettled) {
+            int memberCount, TextView tvNetBalance, LinearLayout llItems, TextView tvSettled) {
         View dialogView = LayoutInflater.from(requireContext())
                 .inflate(R.layout.dialog_record_payment, null, false);
 
@@ -122,19 +125,17 @@ public class SettlementBottomSheetFragment extends BottomSheetDialogFragment {
 
             new Thread(() -> {
                 try {
-                    // Bug fix: payer = me (I'm returning money), myShare = 0 (I owe nothing extra)
-                    // Previously used payTo as payer with myShare=amount, which made balance worse
-                    repo.addExpense(groupId, paymentLabel, myName, finalAmount, 0.0, today, "其他");
+                    repo.addExpense(groupId, paymentLabel, myName, finalAmount, 0.0,
+                            myName, today, "其他");
                     List<Expense> updated = repo.getByGroupId(groupId);
                     if (!isAdded()) return;
                     requireActivity().runOnUiThread(() -> {
                         Bundle result = new Bundle();
                         result.putBoolean("refreshed", true);
                         getParentFragmentManager().setFragmentResult("settlement_result", result);
-                        // Refresh in-place instead of dismissing (Bug 4 fix)
                         llItems.removeAllViews();
                         tvSettled.setVisibility(View.GONE);
-                        renderSettlement(tvNetBalance, llItems, tvSettled, updated, myName);
+                        renderSettlement(tvNetBalance, llItems, tvSettled, updated, myName, memberCount);
                     });
                 } catch (Exception e) {
                     LogUtils.error("記錄付款失敗", e);
@@ -144,19 +145,21 @@ public class SettlementBottomSheetFragment extends BottomSheetDialogFragment {
     }
 
     private void renderSettlement(TextView tvNetBalance, LinearLayout llItems,
-                                  TextView tvSettled, List<Expense> expenses, String myName) {
+                                  TextView tvSettled, List<Expense> expenses,
+                                  String myName, int memberCount) {
         double balance = 0;
         Map<String, Double> iOwe = new LinkedHashMap<>();
         double othersOweMe = 0;
 
         for (Expense e : expenses) {
+            double share = shareFor(e, myName, memberCount);
             if (myName.equals(e.getPayer())) {
-                double credit = e.getTotalAmount() - e.getMyShare();
+                double credit = e.getTotalAmount() - share;
                 othersOweMe += credit;
                 balance += credit;
             } else {
-                iOwe.merge(e.getPayer(), e.getMyShare(), Double::sum);
-                balance -= e.getMyShare();
+                iOwe.merge(e.getPayer(), share, Double::sum);
+                balance -= share;
             }
         }
 
@@ -203,6 +206,14 @@ public class SettlementBottomSheetFragment extends BottomSheetDialogFragment {
         tv.setTextColor(ContextCompat.getColor(requireContext(),
                 isPositive ? R.color.color_positive : R.color.color_negative));
         container.addView(tv);
+    }
+
+    private double shareFor(Expense e, String nickname, int memberCount) {
+        String adder = e.getAdderNickname();
+        if (adder == null || adder.isEmpty() || adder.equals(nickname)) {
+            return e.getMyShare();
+        }
+        return (e.getTotalAmount() - e.getMyShare()) / Math.max(1, memberCount - 1);
     }
 
     private int dpToPx(int dp) {

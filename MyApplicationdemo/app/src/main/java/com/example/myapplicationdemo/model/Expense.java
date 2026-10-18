@@ -10,17 +10,20 @@ public class Expense implements Serializable {
     private final String payer;
     private final double totalAmount;
     private final double myShare;
+    private final String adderNickname;
     private final String date;
     private final String category;
 
     public Expense(String id, String groupId, String description, String payer,
-                   double totalAmount, double myShare, String date, String category) {
+                   double totalAmount, double myShare, String adderNickname,
+                   String date, String category) {
         this.id = id;
         this.groupId = groupId;
         this.description = description;
         this.payer = payer;
         this.totalAmount = totalAmount;
         this.myShare = myShare;
+        this.adderNickname = adderNickname != null ? adderNickname : "";
         this.date = date;
         this.category = category != null ? category : "其他";
     }
@@ -31,6 +34,7 @@ public class Expense implements Serializable {
     public String getPayer() { return payer; }
     public double getTotalAmount() { return totalAmount; }
     public double getMyShare() { return myShare; }
+    public String getAdderNickname() { return adderNickname; }
     public String getDate() { return date; }
     public String getCategory() { return category; }
 }

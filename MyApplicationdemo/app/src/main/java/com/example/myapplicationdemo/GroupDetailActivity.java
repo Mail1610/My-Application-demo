@@ -522,7 +522,7 @@ public class GroupDetailActivity extends AppCompatActivity {
 
     private void showSettlement() {
         SettlementBottomSheetFragment sheet =
-                SettlementBottomSheetFragment.newInstance(groupId);
+                SettlementBottomSheetFragment.newInstance(groupId, memberCount);
         sheet.show(getSupportFragmentManager(), "settlement");
     }
 

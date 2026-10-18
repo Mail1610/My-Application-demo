@@ -56,7 +56,8 @@ public class GroupDetailViewModel extends AndroidViewModel {
                            double totalAmount, double myShare, String date, String category) {
         new Thread(() -> {
             try {
-                repository.addExpense(currentGroupId, description, payer, totalAmount, myShare, date, category);
+                repository.addExpense(currentGroupId, description, payer, totalAmount, myShare,
+                        myNickname, date, category);
             } catch (Exception e) {
                 LogUtils.error("新增支出失敗", e);
             }
@@ -65,8 +66,10 @@ public class GroupDetailViewModel extends AndroidViewModel {
 
     public void updateExpense(Expense old, String description, String payer,
                               double totalAmount, double myShare, String date, String category) {
+        String adder = old.getAdderNickname() != null && !old.getAdderNickname().isEmpty()
+                ? old.getAdderNickname() : myNickname;
         Expense updated = new Expense(old.getId(), old.getGroupId(),
-                description, payer, totalAmount, myShare, date, category);
+                description, payer, totalAmount, myShare, adder, date, category);
         new Thread(() -> {
             try {
                 repository.updateExpense(updated);
@@ -201,15 +204,25 @@ public class GroupDetailViewModel extends AndroidViewModel {
     }
 
     private double computeBalance(List<Expense> list) {
+        int count = memberCount.getValue() != null ? memberCount.getValue() : 2;
         double bal = 0;
         for (Expense e : list) {
+            double share = shareFor(e, myNickname, count);
             if (myNickname.equals(e.getPayer())) {
-                bal += e.getTotalAmount() - e.getMyShare();
+                bal += e.getTotalAmount() - share;
             } else {
-                bal -= e.getMyShare();
+                bal -= share;
             }
         }
         return bal;
+    }
+
+    private double shareFor(Expense e, String nickname, int memberCount) {
+        String adder = e.getAdderNickname();
+        if (adder == null || adder.isEmpty() || adder.equals(nickname)) {
+            return e.getMyShare();
+        }
+        return (e.getTotalAmount() - e.getMyShare()) / Math.max(1, memberCount - 1);
     }
 
     @Override
