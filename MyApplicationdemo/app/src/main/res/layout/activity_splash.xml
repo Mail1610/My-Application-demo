@@ -3,67 +3,35 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_splash">
-
-    <!-- 裝飾圓圈（右上） -->
-    <View
-        android:layout_width="240dp"
-        android:layout_height="240dp"
-        android:alpha="0.15"
-        android:background="@drawable/bg_circle"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginEnd="-80dp"
-        android:layout_marginTop="-80dp" />
-
-    <!-- 裝飾圓圈（左下） -->
-    <View
-        android:layout_width="180dp"
-        android:layout_height="180dp"
-        android:alpha="0.12"
-        android:background="@drawable/bg_circle"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="-60dp"
-        android:layout_marginBottom="-60dp" />
+    android:background="@color/color_splash_bg">
 
     <!-- 中央內容 -->
     <LinearLayout
         android:id="@+id/ll_center"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:orientation="vertical"
         android:gravity="center"
+        android:paddingHorizontal="32dp"
         android:alpha="0">
 
-        <!-- Logo 圖片 -->
+        <!-- 橫版 Banner 圖 -->
         <ImageView
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:src="@drawable/ic_logo"
-            android:scaleType="fitCenter"
-            android:layout_gravity="center" />
-
-        <!-- APP 名稱 -->
-        <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="@string/app_name"
-            android:textColor="@color/white"
-            android:textSize="48sp"
-            android:textStyle="bold"
-            android:letterSpacing="0.08"
-            android:fontFamily="sans-serif-medium" />
+            android:src="@drawable/home_banner"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            android:layout_gravity="center" />
 
         <!-- 分隔線 -->
         <View
             android:layout_width="48dp"
-            android:layout_height="2dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="14dp"
-            android:background="#80FFFFFF"
+            android:layout_height="1dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="16dp"
+            android:background="#30333366"
             android:layout_gravity="center" />
 
         <!-- 副標題 -->
@@ -71,7 +39,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/app_tagline"
-            android:textColor="#CCFFFFFF"
+            android:textColor="#66333366"
             android:textSize="15sp"
             android:letterSpacing="0.06"
             android:fontFamily="sans-serif-light" />
@@ -83,7 +51,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="v1.0"
-        android:textColor="#66FFFFFF"
+        android:textColor="#44333366"
         android:textSize="12sp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"

@@ -16,6 +16,7 @@
     <!-- Surface -->
     <color name="color_bg">#F2F4FF</color>
     <color name="color_surface">#FFFFFF</color>
+    <color name="color_splash_bg">#FBFBFB</color>
 
     <!-- Category -->
     <color name="color_cat_food">#F4A261</color>
