@@ -170,6 +170,21 @@ public class GroupRepository {
         return remaining;
     }
 
+    public void kickMember(String groupId, String targetDeviceId) throws Exception {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("members", FieldValue.arrayRemove(targetDeviceId));
+        updates.put("nicknames." + targetDeviceId, FieldValue.delete());
+        updates.put("balances." + targetDeviceId, FieldValue.delete());
+        updates.put("admins", FieldValue.arrayRemove(targetDeviceId));
+        updates.put("memberCount", FieldValue.increment(-1));
+        Tasks.await(db.collection(COLLECTION).document(groupId).update(updates));
+    }
+
+    public void updateNickname(String groupId, String deviceId, String newNickname) throws Exception {
+        Tasks.await(db.collection(COLLECTION).document(groupId)
+                .update("nicknames." + deviceId, newNickname));
+    }
+
     public void deleteGroup(String groupId) throws Exception {
         QuerySnapshot snap = Tasks.await(
                 db.collection(COLLECTION).document(groupId).collection("expenses").get()

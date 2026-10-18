@@ -187,6 +187,45 @@ public class GroupDetailViewModel extends AndroidViewModel {
         void onError();
     }
 
+    public interface KickMemberCallback {
+        void onSuccess();
+        void onError();
+    }
+
+    public void kickMember(String groupId, String targetDeviceId, KickMemberCallback callback) {
+        new Thread(() -> {
+            try {
+                groupRepository.kickMember(groupId, targetDeviceId);
+                new android.os.Handler(android.os.Looper.getMainLooper())
+                        .post(callback::onSuccess);
+            } catch (Exception e) {
+                LogUtils.error("踢出成員失敗", e);
+                new android.os.Handler(android.os.Looper.getMainLooper())
+                        .post(callback::onError);
+            }
+        }).start();
+    }
+
+    public interface UpdateNicknameCallback {
+        void onSuccess();
+        void onError();
+    }
+
+    public void updateNickname(String groupId, String deviceId, String newNickname,
+                               UpdateNicknameCallback callback) {
+        new Thread(() -> {
+            try {
+                groupRepository.updateNickname(groupId, deviceId, newNickname);
+                new android.os.Handler(android.os.Looper.getMainLooper())
+                        .post(callback::onSuccess);
+            } catch (Exception e) {
+                LogUtils.error("更新暱稱失敗", e);
+                new android.os.Handler(android.os.Looper.getMainLooper())
+                        .post(callback::onError);
+            }
+        }).start();
+    }
+
     public void changeInviteCode(String groupId, String newCode, ChangeInviteCodeCallback callback) {
         new Thread(() -> {
             try {

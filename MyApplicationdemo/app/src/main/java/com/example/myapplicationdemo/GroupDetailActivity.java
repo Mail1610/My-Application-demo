@@ -24,6 +24,7 @@ import com.example.myapplicationdemo.databinding.ActivityGroupDetailBinding;
 import com.example.myapplicationdemo.databinding.DialogAddExpenseBinding;
 import com.example.myapplicationdemo.databinding.DialogChangeInviteCodeBinding;
 import com.example.myapplicationdemo.databinding.DialogRenameGroupBinding;
+import com.example.myapplicationdemo.databinding.DialogSetNicknameBinding;
 import com.example.myapplicationdemo.model.Expense;
 import com.example.myapplicationdemo.utils.SessionManager;
 import com.example.myapplicationdemo.viewmodel.GroupDetailViewModel;
@@ -113,9 +114,9 @@ public class GroupDetailActivity extends AppCompatActivity {
         menu.findItem(R.id.action_change_invite_code).setVisible(isAdmin);
         menu.findItem(R.id.action_manage_members).setVisible(isAdmin);
         menu.findItem(R.id.action_delete_group).setVisible(isAdmin);
-        // Creator must delete; non-creators (including non-creator admins) can leave
         boolean isCreator = deviceId.equals(creatorDeviceId);
         menu.findItem(R.id.action_leave_group).setVisible(!isCreator);
+        menu.findItem(R.id.action_change_nickname).setVisible(true);
         return true;
     }
 
@@ -129,6 +130,9 @@ public class GroupDetailActivity extends AppCompatActivity {
             return true;
         } else if (item.getItemId() == R.id.action_change_invite_code) {
             showChangeInviteCodeDialog();
+            return true;
+        } else if (item.getItemId() == R.id.action_change_nickname) {
+            showChangeNicknameDialog();
             return true;
         } else if (item.getItemId() == R.id.action_leave_group) {
             showLeaveGroupDialog();
@@ -246,30 +250,110 @@ public class GroupDetailActivity extends AppCompatActivity {
             for (int i = 0; i < deviceIds.length; i++) {
                 displayNames[i] = membersMap.get(deviceIds[i]);
             }
-
             new MaterialAlertDialogBuilder(this)
                     .setTitle(R.string.dialog_title_manage_members)
                     .setItems(displayNames, (d, which) -> {
                         String targetId = deviceIds[which];
                         if (targetId.equals(deviceId)) return;
-                        boolean targetIsAdmin = displayNames[which].endsWith("★");
+                        showMemberActionDialog(targetId, displayNames[which]);
+                    })
+                    .setPositiveButton(R.string.btn_confirm, null)
+                    .show();
+        });
+    }
+
+    private void showMemberActionDialog(String targetId, String displayName) {
+        boolean targetIsAdmin = displayName.endsWith("★");
+        boolean targetIsCreator = targetId.equals(creatorDeviceId);
+        String adminAction = targetIsAdmin
+                ? getString(R.string.btn_revoke_admin)
+                : getString(R.string.btn_grant_admin);
+        String[] options = targetIsCreator
+                ? new String[]{adminAction}
+                : new String[]{adminAction, getString(R.string.menu_kick_member)};
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(displayName)
+                .setItems(options, (d, which) -> {
+                    if (which == 0) {
                         if (targetIsAdmin) {
-                            if (targetId.equals(creatorDeviceId)) {
+                            if (targetIsCreator) {
                                 Snackbar.make(binding.getRoot(),
                                         R.string.error_cannot_revoke_creator_admin, Snackbar.LENGTH_SHORT).show();
                                 return;
                             }
                             viewModel.revokeAdmin(groupId, targetId, creatorDeviceId);
-                            Snackbar.make(binding.getRoot(),
-                                    R.string.msg_admin_revoked, Snackbar.LENGTH_SHORT).show();
+                            Snackbar.make(binding.getRoot(), R.string.msg_admin_revoked, Snackbar.LENGTH_SHORT).show();
                         } else {
                             viewModel.grantAdmin(groupId, targetId);
-                            Snackbar.make(binding.getRoot(),
-                                    R.string.msg_admin_granted, Snackbar.LENGTH_SHORT).show();
+                            Snackbar.make(binding.getRoot(), R.string.msg_admin_granted, Snackbar.LENGTH_SHORT).show();
                         }
-                    })
-                    .setPositiveButton(R.string.btn_confirm, null)
-                    .show();
+                    } else {
+                        showKickConfirmDialog(targetId, displayName);
+                    }
+                })
+                .setNegativeButton(R.string.btn_cancel, null)
+                .show();
+    }
+
+    private void showKickConfirmDialog(String targetId, String displayName) {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.dialog_title_kick_member)
+                .setMessage(getString(R.string.dialog_msg_kick_member, displayName))
+                .setPositiveButton(R.string.btn_confirm, (d, w) ->
+                        viewModel.kickMember(groupId, targetId, new GroupDetailViewModel.KickMemberCallback() {
+                            @Override
+                            public void onSuccess() {
+                                Snackbar.make(binding.getRoot(),
+                                        R.string.msg_member_kicked, Snackbar.LENGTH_SHORT).show();
+                            }
+                            @Override
+                            public void onError() {
+                                Snackbar.make(binding.getRoot(),
+                                        R.string.msg_load_failed, Snackbar.LENGTH_LONG).show();
+                            }
+                        }))
+                .setNegativeButton(R.string.btn_cancel, null)
+                .show();
+    }
+
+    private void showChangeNicknameDialog() {
+        DialogSetNicknameBinding dialogBinding = DialogSetNicknameBinding.inflate(getLayoutInflater());
+        String currentNickname = new SessionManager(this).getNickname();
+        dialogBinding.etNickname.setText(currentNickname);
+        if (!currentNickname.isEmpty()) {
+            dialogBinding.etNickname.setSelection(currentNickname.length());
+        }
+
+        AlertDialog dialog = new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.dialog_title_change_nickname)
+                .setView(dialogBinding.getRoot())
+                .setPositiveButton(R.string.btn_confirm, null)
+                .setNegativeButton(R.string.btn_cancel, null)
+                .show();
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            String newNickname = getText(dialogBinding.etNickname);
+            if (TextUtils.isEmpty(newNickname)) {
+                dialogBinding.tilNickname.setError(getString(R.string.error_field_required));
+                return;
+            }
+            dialogBinding.tilNickname.setError(null);
+            dialog.dismiss();
+            viewModel.updateNickname(groupId, deviceId, newNickname,
+                    new GroupDetailViewModel.UpdateNicknameCallback() {
+                        @Override
+                        public void onSuccess() {
+                            new SessionManager(GroupDetailActivity.this).saveNickname(newNickname);
+                            Snackbar.make(binding.getRoot(),
+                                    R.string.msg_nickname_updated, Snackbar.LENGTH_SHORT).show();
+                        }
+                        @Override
+                        public void onError() {
+                            Snackbar.make(binding.getRoot(),
+                                    R.string.msg_load_failed, Snackbar.LENGTH_LONG).show();
+                        }
+                    });
         });
     }
 

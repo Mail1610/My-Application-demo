@@ -14,6 +14,10 @@
         android:title="@string/menu_change_invite_code"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_change_nickname"
+        android:title="@string/menu_change_nickname"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_leave_group"
         android:title="@string/menu_leave_group"
         app:showAsAction="never" />

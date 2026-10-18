@@ -148,6 +148,12 @@
     <string name="msg_admin_granted">已設為管理員</string>
     <string name="msg_admin_revoked">已取消管理員</string>
     <string name="error_cannot_revoke_creator_admin">無法取消創建者的管理員權限</string>
+    <string name="menu_kick_member">踢出成員</string>
+    <string name="dialog_title_kick_member">踢出成員</string>
+    <string name="dialog_msg_kick_member">確定要將 %1$s 移出群組？</string>
+    <string name="msg_member_kicked">已移出成員</string>
+    <string name="dialog_title_change_nickname">更改暱稱</string>
+    <string name="msg_nickname_updated">暱稱已更新</string>
     <string name="label_admin_badge"> ★</string>
     <string name="msg_expense_deleted">已刪除支出</string>
     <string name="btn_undo">復原</string>
