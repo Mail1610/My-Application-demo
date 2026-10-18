@@ -207,7 +207,7 @@ public class GroupDetailViewModel extends AndroidViewModel {
         int count = memberCount.getValue() != null ? memberCount.getValue() : 2;
         double bal = 0;
         for (Expense e : list) {
-            double share = shareFor(e, myNickname, count);
+            double share = e.getShareFor(myNickname, count);
             if (myNickname.equals(e.getPayer())) {
                 bal += e.getTotalAmount() - share;
             } else {
@@ -215,14 +215,6 @@ public class GroupDetailViewModel extends AndroidViewModel {
             }
         }
         return bal;
-    }
-
-    private double shareFor(Expense e, String nickname, int memberCount) {
-        String adder = e.getAdderNickname();
-        if (adder == null || adder.isEmpty() || adder.equals(nickname)) {
-            return e.getMyShare();
-        }
-        return (e.getTotalAmount() - e.getMyShare()) / Math.max(1, memberCount - 1);
     }
 
     @Override

@@ -37,4 +37,15 @@ public class Expense implements Serializable {
     public String getAdderNickname() { return adderNickname; }
     public String getDate() { return date; }
     public String getCategory() { return category; }
+
+    /**
+     * 計算指定成員在這筆支出中的分攤金額。
+     * 若該成員是新增者，直接回傳 myShare；否則平均分配剩餘金額。
+     */
+    public double getShareFor(String nickname, int memberCount) {
+        if (adderNickname.isEmpty() || adderNickname.equals(nickname)) {
+            return myShare;
+        }
+        return (totalAmount - myShare) / Math.max(1, memberCount - 1);
+    }
 }

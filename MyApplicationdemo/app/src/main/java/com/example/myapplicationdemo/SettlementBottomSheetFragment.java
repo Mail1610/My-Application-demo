@@ -159,7 +159,7 @@ public class SettlementBottomSheetFragment extends BottomSheetDialogFragment {
         double othersOweMe = 0;
 
         for (Expense e : expenses) {
-            double share = shareFor(e, myName, memberCount);
+            double share = e.getShareFor(myName, memberCount);
             if (myName.equals(e.getPayer())) {
                 double credit = e.getTotalAmount() - share;
                 othersOweMe += credit;
@@ -221,14 +221,6 @@ public class SettlementBottomSheetFragment extends BottomSheetDialogFragment {
         tv.setTextColor(ContextCompat.getColor(requireContext(),
                 isPositive ? R.color.color_positive : R.color.color_negative));
         container.addView(tv);
-    }
-
-    private double shareFor(Expense e, String nickname, int memberCount) {
-        String adder = e.getAdderNickname();
-        if (adder == null || adder.isEmpty() || adder.equals(nickname)) {
-            return e.getMyShare();
-        }
-        return (e.getTotalAmount() - e.getMyShare()) / Math.max(1, memberCount - 1);
     }
 
     private int dpToPx(int dp) {

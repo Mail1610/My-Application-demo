@@ -135,7 +135,7 @@ public class ExpenseRepository {
     private double computeBalanceFor(List<Expense> expenses, String nickname, int memberCount) {
         double bal = 0;
         for (Expense e : expenses) {
-            double share = shareFor(e, nickname, memberCount);
+            double share = e.getShareFor(nickname, memberCount);
             if (nickname.equals(e.getPayer())) {
                 bal += e.getTotalAmount() - share;
             } else {
@@ -143,14 +143,6 @@ public class ExpenseRepository {
             }
         }
         return bal;
-    }
-
-    private double shareFor(Expense e, String nickname, int memberCount) {
-        String adder = e.getAdderNickname();
-        if (adder.isEmpty() || adder.equals(nickname)) {
-            return e.getMyShare();
-        }
-        return (e.getTotalAmount() - e.getMyShare()) / Math.max(1, memberCount - 1);
     }
 
     private Expense docToExpense(DocumentSnapshot doc, String groupId) {
