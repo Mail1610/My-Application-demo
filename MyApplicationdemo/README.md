@@ -99,7 +99,7 @@ app/src/main/
 | 刪除群組 | ✅ 完成 | 管理員專屬 |
 | 支出類別篩選 | ✅ 完成 | 群組詳情頁 ChipGroup 即時篩選 |
 | 最少交易筆數結算 | ✅ 完成 | 貪婪算法，結算清單顯示最優方案 |
-| 推播通知（FCM） | ⚠️ 待部署 | Android 端 + Cloud Functions 程式碼完成，需升級 Firebase Blaze 方案後執行 `firebase deploy --only functions` |
+| 推播通知（FCM） | ✅ 完成（待部署） | Android 端完成；Cloud Functions 邏輯完成並本地測試（13/13）；部署需升級 Firebase Blaze 後執行 `firebase deploy --only functions` |
 
 ---
 
