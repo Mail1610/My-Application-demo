@@ -119,6 +119,7 @@
 
     <!-- Category -->
     <string name="label_category">分類</string>
+    <string name="category_all">全部</string>
     <string name="category_food">食</string>
     <string name="category_housing">住</string>
     <string name="category_transport">行</string>

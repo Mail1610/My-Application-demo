@@ -50,6 +50,8 @@ public class GroupDetailActivity extends AppCompatActivity {
     private String deviceId;
     private boolean isAdmin;
     private String creatorDeviceId;
+    private List<Expense> allExpenses = new ArrayList<>();
+    private String selectedCategory = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +100,7 @@ public class GroupDetailActivity extends AppCompatActivity {
         binding.tvMemberCount.setOnClickListener(v -> showMembersDialog());
 
         setupSwipeToDelete();
+        setupCategoryFilter();
         binding.btnSettlement.setOnClickListener(v -> showSettlement());
         binding.fabAddExpense.setOnClickListener(v -> showAddExpenseDialog());
 
@@ -394,10 +397,38 @@ public class GroupDetailActivity extends AppCompatActivity {
     }
 
     private void onExpensesLoaded(List<Expense> expenses) {
-        adapter.updateData(expenses);
-        boolean isEmpty = expenses == null || expenses.isEmpty();
+        allExpenses = expenses != null ? expenses : new ArrayList<>();
+        applyFilter();
+    }
+
+    private void applyFilter() {
+        List<Expense> filtered;
+        if (selectedCategory == null) {
+            filtered = allExpenses;
+        } else {
+            filtered = new ArrayList<>();
+            for (Expense e : allExpenses) {
+                if (selectedCategory.equals(e.getCategory())) filtered.add(e);
+            }
+        }
+        adapter.updateData(filtered);
+        boolean isEmpty = filtered.isEmpty();
         binding.rvExpenses.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
         binding.tvEmptyExpenses.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+    }
+
+    private void setupCategoryFilter() {
+        binding.chipGroupFilter.setOnCheckedStateChangeListener((group, checkedIds) -> {
+            if (checkedIds.isEmpty()) return;
+            int id = checkedIds.get(0);
+            if (id == R.id.chip_filter_all)           selectedCategory = null;
+            else if (id == R.id.chip_filter_food)          selectedCategory = "食";
+            else if (id == R.id.chip_filter_housing)       selectedCategory = "住";
+            else if (id == R.id.chip_filter_transport)     selectedCategory = "行";
+            else if (id == R.id.chip_filter_entertainment) selectedCategory = "娛";
+            else if (id == R.id.chip_filter_other)         selectedCategory = "其他";
+            applyFilter();
+        });
     }
 
     private void updateBalanceHeader(double balance) {
