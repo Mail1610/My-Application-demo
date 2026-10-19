@@ -35,6 +35,8 @@ public class SettlementBottomSheetFragment extends BottomSheetDialogFragment {
 
     private String suggestedPayee = null;
     private List<String> groupMembers = new ArrayList<>();
+    private List<Expense> testExpenses = null;
+    private List<String> testMembers = null;
 
     public static SettlementBottomSheetFragment newInstance(String groupId, int memberCount) {
         SettlementBottomSheetFragment f = new SettlementBottomSheetFragment();
@@ -43,6 +45,11 @@ public class SettlementBottomSheetFragment extends BottomSheetDialogFragment {
         args.putInt(ARG_MEMBER_COUNT, memberCount);
         f.setArguments(args);
         return f;
+    }
+
+    public void setTestData(List<Expense> expenses, List<String> members) {
+        this.testExpenses = expenses;
+        this.testMembers = members;
     }
 
     @Nullable
@@ -69,20 +76,26 @@ public class SettlementBottomSheetFragment extends BottomSheetDialogFragment {
         ExpenseRepository repo = new ExpenseRepository();
         GroupRepository groupRepo = new GroupRepository();
 
-        new Thread(() -> {
-            try {
-                List<Expense> expenses = repo.getByGroupId(groupId);
-                List<String> members   = groupRepo.getMembers(groupId);
-                if (!isAdded()) return;
-                requireActivity().runOnUiThread(() -> {
-                    groupMembers = members;
-                    renderSettlement(tvNetBalance, llItems, tvSettled, tvWaiting,
-                            btnRecordPayment, expenses, myName, memberCount);
-                });
-            } catch (Exception e) {
-                LogUtils.error("載入結算失敗", e);
-            }
-        }).start();
+        if (testExpenses != null) {
+            groupMembers = testMembers != null ? testMembers : new ArrayList<>();
+            renderSettlement(tvNetBalance, llItems, tvSettled, tvWaiting,
+                    btnRecordPayment, testExpenses, myName, memberCount);
+        } else {
+            new Thread(() -> {
+                try {
+                    List<Expense> expenses = repo.getByGroupId(groupId);
+                    List<String> members   = groupRepo.getMembers(groupId);
+                    if (!isAdded()) return;
+                    requireActivity().runOnUiThread(() -> {
+                        groupMembers = members;
+                        renderSettlement(tvNetBalance, llItems, tvSettled, tvWaiting,
+                                btnRecordPayment, expenses, myName, memberCount);
+                    });
+                } catch (Exception e) {
+                    LogUtils.error("載入結算失敗", e);
+                }
+            }).start();
+        }
 
         btnRecordPayment.setOnClickListener(v ->
                 showRecordPaymentDialog(groupId, repo, myName, memberCount,

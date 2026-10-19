@@ -101,7 +101,11 @@ public class GroupDetailActivity extends AppCompatActivity {
 
         setupSwipeToDelete();
         setupCategoryFilter();
-        binding.btnSettlement.setOnClickListener(v -> showSettlement());
+        if (getIntent().getBooleanExtra("add_test_alice", false)) {
+            binding.btnSettlement.setOnClickListener(v -> showSettlementTest());
+        } else {
+            binding.btnSettlement.setOnClickListener(v -> showSettlement());
+        }
         binding.fabAddExpense.setOnClickListener(v -> showAddExpenseDialog());
 
         getSupportFragmentManager().setFragmentResultListener(
@@ -638,6 +642,19 @@ public class GroupDetailActivity extends AppCompatActivity {
     private void showSettlement() {
         SettlementBottomSheetFragment sheet =
                 SettlementBottomSheetFragment.newInstance(groupId, memberCount);
+        sheet.show(getSupportFragmentManager(), "settlement");
+    }
+
+    private void showSettlementTest() {
+        List<Expense> expenses = new ArrayList<>();
+        expenses.add(new Expense("t1", groupId, "Dinner", "Ming", 600, 300, "Ming", "10/01", "食"));
+        expenses.add(new Expense("t2", groupId, "Hotel",  "Alice", 900, 450, "Alice", "10/01", "住"));
+        List<String> members = new ArrayList<>();
+        members.add("Alice");
+        members.add("Ming");
+        SettlementBottomSheetFragment sheet =
+                SettlementBottomSheetFragment.newInstance(groupId, 2);
+        sheet.setTestData(expenses, members);
         sheet.show(getSupportFragmentManager(), "settlement");
     }
 

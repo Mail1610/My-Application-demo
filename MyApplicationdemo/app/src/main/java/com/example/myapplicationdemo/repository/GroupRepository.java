@@ -110,12 +110,23 @@ public class GroupRepository {
         return result;
     }
 
-    /** Returns sorted list of nicknames in the group. Call from background thread. */
+    /** Returns sorted list of raw nicknames (no admin badge). Call from background thread. */
     public List<String> getMembers(String groupId) throws Exception {
-        Map<String, String> map = getMembersMap(groupId);
-        List<String> names = new ArrayList<>(map.values());
+        DocumentSnapshot doc = Tasks.await(db.collection(COLLECTION).document(groupId).get());
+        @SuppressWarnings("unchecked")
+        Map<String, Object> rawNicknames = (Map<String, Object>) doc.get("nicknames");
+        List<String> names = new ArrayList<>();
+        if (rawNicknames != null) {
+            for (Object v : rawNicknames.values()) names.add(String.valueOf(v));
+        }
         Collections.sort(names);
         return names;
+    }
+
+    /** Writes the computed balance for a device back to the group document. Call from background thread. */
+    public void updateBalance(String groupId, String deviceId, double balance) throws Exception {
+        Tasks.await(db.collection(COLLECTION).document(groupId)
+                .update("balances." + deviceId, balance));
     }
 
     /** Grant admin role to a member. Only current admins should call this. */

@@ -24,12 +24,15 @@ public class GroupDetailViewModel extends AndroidViewModel {
     private final GroupRepository groupRepository = new GroupRepository();
     private String currentGroupId;
     private String myNickname;
+    private String myDeviceId;
     private ListenerRegistration expenseListener;
     private ListenerRegistration groupListener;
 
     public GroupDetailViewModel(@NonNull Application application) {
         super(application);
-        myNickname = new SessionManager(application).getNickname();
+        SessionManager session = new SessionManager(application);
+        myNickname = session.getNickname();
+        myDeviceId = session.getDeviceId();
     }
 
     public LiveData<List<Expense>> getExpenses() { return expenses; }
@@ -44,8 +47,16 @@ public class GroupDetailViewModel extends AndroidViewModel {
         if (expenseListener != null) expenseListener.remove();
         expenseListener = repository.addExpensesListener(groupId, list -> {
             expenses.postValue(list);
-            balance.postValue(computeBalance(list));
+            double bal = computeBalance(list);
+            balance.postValue(bal);
             loading.postValue(false);
+            new Thread(() -> {
+                try {
+                    groupRepository.updateBalance(groupId, myDeviceId, bal);
+                } catch (Exception e) {
+                    LogUtils.error("更新群組餘額失敗", e);
+                }
+            }).start();
         });
         if (groupListener != null) groupListener.remove();
         groupListener = groupRepository.addGroupListener(groupId, count ->
