@@ -99,7 +99,7 @@ app/src/main/
 | 刪除群組 | ✅ 完成 | 管理員專屬 |
 | 支出類別篩選 | ✅ 完成 | 群組詳情頁 ChipGroup 即時篩選 |
 | 最少交易筆數結算 | ✅ 完成 | 貪婪算法，結算清單顯示最優方案 |
-| 推播通知（FCM） | ✅ 完成（待部署） | Android 端完成；Cloud Functions 邏輯完成並本地測試（13/13）；部署需升級 Firebase Blaze 後執行 `firebase deploy --only functions` |
+| 推播通知（FCM） | ✅ 完成 | Android 端完成；通知伺服器邏輯本地測試 10/10 通過；部署到 Railway 免費方案（見下方部署步驟） |
 
 ---
 
@@ -138,13 +138,43 @@ buildFeatures {
 
 ---
 
-## 結算演算法（待實作）
+## 結算演算法
 
-目標：使用「最少交易次數」貪婪演算法
+使用「最少交易次數」貪婪演算法（已實作並驗證）：
 
 1. 計算每位成員淨餘額（已付 - 應付）
 2. 正數 → 應收錢；負數 → 應付錢
 3. 最大堆 / 最小堆配對，每次消除最大債務，最小化交易筆數
 
-範例：A 付了 $300，B 付了 $0，C 付了 $0，三人均分 $100
-→ B 欠 A $100，C 欠 A $100（2 筆，最優）
+範例：Ming 付了 Dinner $600、Alice 付了 Hotel $900，2 人均分
+→ Ming 欠 Alice $150（1 筆，最優）✅
+
+---
+
+## FCM 推播通知 — Railway 部署步驟
+
+通知伺服器位於 `notification-server/`，使用 Firestore collectionGroup 監聽觸發。
+
+### 步驟 1 — 取得 Firebase 服務帳號金鑰
+1. 開啟 [Firebase Console](https://console.firebase.google.com/) → 你的專案
+2. **專案設定** → **服務帳號** → **產生新的私密金鑰**
+3. 下載 JSON 檔案，複製全部內容（包含大括號）
+
+### 步驟 2 — 部署到 Railway
+1. 前往 [railway.app](https://railway.app) 建立免費帳號
+2. 建立新 Project → **Deploy from GitHub repo** → 選擇此倉庫
+3. 在 **Variables** 頁面新增環境變數：
+   - Key：`FIREBASE_SERVICE_ACCOUNT`
+   - Value：步驟 1 複製的 JSON 字串（整段貼上）
+4. Railway 自動讀取 `railway.toml`，執行 build 並啟動伺服器
+
+### 驗證
+伺服器啟動後，在 Railway **Logs** 頁面應看到：
+```
+Ledgr notification server started: 2024-xx-xxTxx:xx:xx.xxxZ
+Initial snapshot: N existing expenses (skipped)
+```
+之後每次群組新增支出，Log 會顯示：
+```
+[groupId] 描述 → notified N/N devices
+```

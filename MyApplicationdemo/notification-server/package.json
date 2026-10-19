@@ -1,0 +1,14 @@
+{
+  "name": "ledgr-notification-server",
+  "description": "Ledgr FCM notification server — deploy to Railway (free tier)",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": "18"
+  },
+  "dependencies": {
+    "firebase-admin": "^11.8.0"
+  },
+  "private": true
+}

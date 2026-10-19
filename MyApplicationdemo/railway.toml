@@ -1,0 +1,5 @@
+[build]
+buildCommand = "cd notification-server && npm install"
+
+[deploy]
+startCommand = "cd notification-server && node index.js"
