@@ -32,6 +32,8 @@ import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -52,6 +54,7 @@ public class GroupDetailActivity extends AppCompatActivity {
     private String creatorDeviceId;
     private List<Expense> allExpenses = new ArrayList<>();
     private String selectedCategory = null;
+    private String myNickname;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +67,7 @@ public class GroupDetailActivity extends AppCompatActivity {
         memberCount = getIntent().getIntExtra("group_member_count", 2);
         inviteCode = getIntent().getStringExtra("group_invite_code");
         deviceId = new SessionManager(this).getDeviceId();
+        myNickname = new SessionManager(this).getNickname();
         isAdmin = getIntent().getBooleanExtra("group_is_admin", false);
         creatorDeviceId = getIntent().getStringExtra("group_creator_device_id");
 
@@ -525,47 +529,59 @@ public class GroupDetailActivity extends AppCompatActivity {
     }
 
     private void showAddExpenseDialog() {
-        DialogAddExpenseBinding dialogBinding = DialogAddExpenseBinding.inflate(getLayoutInflater());
-        String today = new SimpleDateFormat("MM/dd", Locale.getDefault()).format(new Date());
-        dialogBinding.etDate.setText(today);
+        viewModel.loadMembers(groupId, nicknames -> {
+            DialogAddExpenseBinding dialogBinding = DialogAddExpenseBinding.inflate(getLayoutInflater());
+            String today = new SimpleDateFormat("MM/dd", Locale.getDefault()).format(new Date());
+            dialogBinding.etDate.setText(today);
+            setupPayerDropdown(dialogBinding, nicknames, myNickname);
+            setupDatePicker(dialogBinding, null);
+            setupEqualSplitButton(dialogBinding);
 
-        setupDatePicker(dialogBinding, null);
-        setupEqualSplitButton(dialogBinding);
+            AlertDialog dialog = new MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.dialog_title_add_expense)
+                    .setView(dialogBinding.getRoot())
+                    .setPositiveButton(R.string.btn_confirm, null)
+                    .setNegativeButton(R.string.btn_cancel, null)
+                    .show();
 
-        AlertDialog dialog = new MaterialAlertDialogBuilder(this)
-                .setTitle(R.string.dialog_title_add_expense)
-                .setView(dialogBinding.getRoot())
-                .setPositiveButton(R.string.btn_confirm, null)
-                .setNegativeButton(R.string.btn_cancel, null)
-                .show();
-
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
-            if (!validateAndSubmitExpense(dialogBinding, dialog, null)) return;
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+                if (!validateAndSubmitExpense(dialogBinding, dialog, null)) return;
+            });
         });
     }
 
     private void showEditExpenseDialog(Expense expense) {
-        DialogAddExpenseBinding dialogBinding = DialogAddExpenseBinding.inflate(getLayoutInflater());
-        dialogBinding.etDescription.setText(expense.getDescription());
-        dialogBinding.etPayer.setText(expense.getPayer());
-        dialogBinding.etTotalAmount.setText(formatAmount(expense.getTotalAmount()));
-        dialogBinding.etMyShare.setText(formatAmount(expense.getMyShare()));
-        dialogBinding.etDate.setText(expense.getDate());
-        dialogBinding.chipGroupCategory.check(categoryToChipId(expense.getCategory()));
+        viewModel.loadMembers(groupId, nicknames -> {
+            DialogAddExpenseBinding dialogBinding = DialogAddExpenseBinding.inflate(getLayoutInflater());
+            dialogBinding.etDescription.setText(expense.getDescription());
+            dialogBinding.etTotalAmount.setText(formatAmount(expense.getTotalAmount()));
+            dialogBinding.etMyShare.setText(formatAmount(expense.getMyShare()));
+            dialogBinding.etDate.setText(expense.getDate());
+            dialogBinding.chipGroupCategory.check(categoryToChipId(expense.getCategory()));
+            setupPayerDropdown(dialogBinding, nicknames, expense.getPayer());
+            setupDatePicker(dialogBinding, expense.getDate());
+            setupEqualSplitButton(dialogBinding);
 
-        setupDatePicker(dialogBinding, expense.getDate());
-        setupEqualSplitButton(dialogBinding);
+            AlertDialog dialog = new MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.dialog_title_edit_expense)
+                    .setView(dialogBinding.getRoot())
+                    .setPositiveButton(R.string.btn_confirm, null)
+                    .setNegativeButton(R.string.btn_cancel, null)
+                    .show();
 
-        AlertDialog dialog = new MaterialAlertDialogBuilder(this)
-                .setTitle(R.string.dialog_title_edit_expense)
-                .setView(dialogBinding.getRoot())
-                .setPositiveButton(R.string.btn_confirm, null)
-                .setNegativeButton(R.string.btn_cancel, null)
-                .show();
-
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
-            validateAndSubmitExpense(dialogBinding, dialog, expense);
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+                validateAndSubmitExpense(dialogBinding, dialog, expense);
+            });
         });
+    }
+
+    private void setupPayerDropdown(DialogAddExpenseBinding db, List<String> nicknames, String defaultValue) {
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_dropdown_item_1line, nicknames);
+        db.etPayer.setAdapter(adapter);
+        if (!TextUtils.isEmpty(defaultValue)) {
+            db.etPayer.setText(defaultValue, false);
+        }
     }
 
     private void setupDatePicker(DialogAddExpenseBinding dialogBinding, String existingDate) {
@@ -671,6 +687,10 @@ public class GroupDetailActivity extends AppCompatActivity {
     }
 
     private String getText(TextInputEditText et) {
+        return et.getText() != null ? et.getText().toString().trim() : "";
+    }
+
+    private String getText(AutoCompleteTextView et) {
         return et.getText() != null ? et.getText().toString().trim() : "";
     }
 
