@@ -15,6 +15,7 @@
 | 2026-09-18 | `cedc2c6` | 多人加入群組（邀請碼、暱稱、Firebase 即時同步）|
 | 2026-10-17 | `d2c19a6` `6ed1986` | 查看群組成員名單 |
 | 2026-10-18 | `6ae137d` `fb3e701` `e5e5b2e` `060013b` `90d8243` （新）| 管理員權限、修復多個 Bug、餘額計算錯誤、結算 UX 改善、OOP 重構、踢出成員 + 更改暱稱 |
+| 2026-10-19 | `1bff97f` `5219bdf` `57cca12` `888d8e8` `8721925` `6353571` `73c4b97` `37b81f7` `8504521` `b5da32b` | APP 改名 Ledgr、支出類別篩選、最少交易結算算法、FCM 推播通知方案（Railway 伺服器）、支出列表一天一節 |
 
 ---
 
@@ -267,3 +268,112 @@
 - `strings.xml` 新增 kick/nickname 相關字串
 
 **影響範圍：** `GroupRepository.java`、`GroupDetailViewModel.java`、`GroupDetailActivity.java`、`menu_group_detail.xml`、`strings.xml`
+
+---
+
+## 2026-10-19
+
+### APP 改名 Ledgr + 換圖示與啟動畫面 `1bff97f` `5219bdf`
+
+**背景：**
+原本 APP 名稱為「顯」，圖示為預設 Android launcher icon。此版本完成品牌化，改名為 **Ledgr**。
+
+**變更：**
+- `strings.xml` app_name 改為 Ledgr
+- 所有解析度 mipmap（hdpi / mdpi / xhdpi / xxhdpi / xxxhdpi）換為 Ledgr logo png
+- `activity_splash.xml` 啟動畫面改用橫版 Ledgr banner 圖（去浮水印版本）
+
+**影響範圍：** `mipmap-*/ic_launcher*.png`、`activity_splash.xml`、`strings.xml`
+
+---
+
+### 新增支出類別篩選 `57cca12`
+
+**新功能：**
+群組詳情頁支出列表頂部新增 ChipGroup，可依類別（全部 / 食 / 住 / 行 / 娛 / 其他）過濾支出。
+
+**實作：**
+- `activity_group_detail.xml` 加入 `HorizontalScrollView` + `ChipGroup`，每個類別一個 `Chip`
+- `GroupDetailActivity` 監聽 `setOnCheckedStateChangeListener`，切換時重新呼叫 `updateExpenseList()` 並過濾
+- 預設選取「全部」；切換類別不重新請求 Firestore，直接過濾本地快取列表
+
+**影響範圍：** `GroupDetailActivity.java`、`activity_group_detail.xml`、`strings.xml`
+
+---
+
+### 新增最少交易筆數結算算法 `888d8e8`
+
+**背景：**
+原結算只顯示每人對每人的個別欠款，n 人群組最多有 n(n-1) 筆交易。新功能使用貪婪算法計算最少交易方案，自動合併多筆欠款，減少結清所需付款次數。
+
+**算法：**
+1. 計算每位成員的淨餘額（正 = 待收，負 = 待付）
+2. 維護兩個 heap（最大債主、最大債務人），每次配對金額最大的兩方
+3. 重複到所有餘額歸零為止，產生最少交易清單
+
+**實作：**
+- `SettlementBottomSheetFragment` 新增 `computeMinTransactions()` 方法，替換原本逐對計算的邏輯
+- 新增 `setTestData()` 方法，可在離線測試模式下繞過 Firestore 直接驗證算法
+- `GroupDetailActivity` 加入 `add_test_alice` intent extra 觸發測試模式
+
+**影響範圍：** `SettlementBottomSheetFragment.java`、`GroupDetailActivity.java`、`strings.xml`
+
+---
+
+### 修復餘額同步 + 加入 FCM 推播服務基礎 `8721925`
+
+**Bug 修復：**
+
+**問題 1 — MainActivity 顯示 $0：**
+`GroupDetailViewModel` 計算完餘額後只更新本地 LiveData，未寫回 Firestore，導致 `MainActivity` 從 Firestore 讀到的餘額始終為 $0。
+**解法：** `GroupDetailViewModel` 計算餘額後呼叫 `GroupRepository.updateBalance()` 寫回 Firestore。
+
+**問題 2 — 結算成員不匹配：**
+`GroupRepository.getMembers()` 在管理員暱稱後附加「★」標記，導致結算時成員名稱對不上 Expense 的 adderNickname。
+**解法：** `getMembers()` 改為回傳純暱稱列表，星號標記移至 UI 層顯示。
+
+**FCM 推播基礎：**
+- 新增 `AppFirebaseMessagingService`：繼承 `FirebaseMessagingService`，接收推播並建立通知
+- `MainActivity` 加入執行期通知權限申請（Android 13+）
+- `AndroidManifest` 註冊 service，`GroupDetailActivity` 改回 `exported=false`
+
+**影響範圍：** `GroupDetailViewModel.java`、`GroupRepository.java`、`SettlementBottomSheetFragment.java`、`GroupDetailActivity.java`、`MainActivity.java`、`AppFirebaseMessagingService.java`（新增）
+
+---
+
+### FCM 推播通知方案：Cloud Functions + Railway 伺服器 `6353571` `73c4b97` `37b81f7` `8504521`
+
+**背景：**
+Firebase Cloud Messaging 需要伺服器端觸發推播。Firebase Cloud Functions 需要 Blaze（付費）方案，因此同時實作以 Railway 免費服務為替代方案。
+
+**方案一 — Cloud Functions（`6353571`）：**
+- `functions/index.js`：Firestore `expenses/{expenseId}` onCreate 觸發，讀取同群組所有成員的 FCM token，呼叫 FCM API 推播
+- `firebase.json` 加入 functions 設定
+- 本地測試 13/13 通過（`73c4b97`）
+- 狀態：程式碼完成，需升級 Firebase Blaze 後 deploy
+
+**方案二 — Railway 長駐伺服器（`37b81f7`）：**
+- `notification-server/index.js`：Node.js 長駐服務，使用 Firestore `collectionGroup` 監聽所有群組的 expenses 集合，新支出寫入時觸發 FCM 推播給同群組其他成員
+- `notification-server/test_local.js`：邏輯測試 10/10 通過（2人/3人群組、無 token 邊界情況）
+- `railway.toml`：Railway 部署設定（免費方案）
+- 端對端測試（`8504521`）：`test_e2e.js` 使用本地 Firestore 模擬器執行整合測試，13/13 通過
+
+**影響範圍：** `functions/index.js`（新增）、`functions/package.json`（新增）、`notification-server/index.js`（新增）、`notification-server/test_local.js`（新增）、`notification-server/test_e2e.js`（新增）、`railway.toml`（新增）、`firebase.json`
+
+---
+
+### 支出列表一天一節 + 移除模擬器連線 `b5da32b`
+
+**新功能 — 支出列表日期分組：**
+原本每張支出卡片都顯示日期，同一天有多筆支出時日期重複出現。改為用日期標題行分隔，同日支出只在最上方顯示一次日期。
+
+**實作：**
+- `ExpenseAdapter` 改用混合列表 `List<Object>`（`String` 日期標題 + `Expense` 支出項目），`getItemViewType()` 區分兩種 ViewHolder
+- 新增 `DateHeaderViewHolder` 對應 `item_date_header.xml`（置中文字 + 兩側橫線）
+- `item_expense.xml` 隱藏卡片上原有的日期欄位
+- `GroupDetailActivity.setupSwipeToDelete()` 覆寫 `getSwipeDirs()`，標題行回傳 0 不可滑動刪除；`onSwiped()` 加 null 檢查
+
+**修復 — 移除 Firestore 模擬器連線：**
+`MyApplication` 移除 `useEmulator()` 呼叫，APP 改連線至正式 Firebase Firestore。
+
+**影響範圍：** `ExpenseAdapter.java`、`GroupDetailActivity.java`、`MyApplication.java`、`item_expense.xml`、`item_date_header.xml`（新增）
