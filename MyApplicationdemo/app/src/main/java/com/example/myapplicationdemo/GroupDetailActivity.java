@@ -37,8 +37,10 @@ import android.widget.AutoCompleteTextView;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class GroupDetailActivity extends AppCompatActivity {
 
@@ -276,12 +278,14 @@ public class GroupDetailActivity extends AppCompatActivity {
     private void showMemberActionDialog(String targetId, String displayName) {
         boolean targetIsAdmin = displayName.endsWith("★");
         boolean targetIsCreator = targetId.equals(creatorDeviceId);
+        String cleanNickname = displayName.replace("★", "").trim();
         String adminAction = targetIsAdmin
                 ? getString(R.string.btn_revoke_admin)
                 : getString(R.string.btn_grant_admin);
+        String setNoteAction = getString(R.string.menu_set_note);
         String[] options = targetIsCreator
-                ? new String[]{adminAction}
-                : new String[]{adminAction, getString(R.string.menu_kick_member)};
+                ? new String[]{adminAction, setNoteAction}
+                : new String[]{adminAction, getString(R.string.menu_kick_member), setNoteAction};
 
         new MaterialAlertDialogBuilder(this)
                 .setTitle(displayName)
@@ -299,12 +303,35 @@ public class GroupDetailActivity extends AppCompatActivity {
                             viewModel.grantAdmin(groupId, targetId);
                             Snackbar.make(binding.getRoot(), R.string.msg_admin_granted, Snackbar.LENGTH_SHORT).show();
                         }
-                    } else {
+                    } else if (!targetIsCreator && which == 1) {
                         showKickConfirmDialog(targetId, displayName);
+                    } else {
+                        showSetNoteDialog(targetId, cleanNickname);
                     }
                 })
                 .setNegativeButton(R.string.btn_cancel, null)
                 .show();
+    }
+
+    private void showSetNoteDialog(String targetDeviceId, String nickname) {
+        DialogSetNicknameBinding db = DialogSetNicknameBinding.inflate(getLayoutInflater());
+        db.tilNickname.setHint(getString(R.string.hint_member_note));
+        String currentNote = getMemberNote(targetDeviceId);
+        db.etNickname.setText(currentNote);
+        if (!currentNote.isEmpty()) db.etNickname.setSelection(currentNote.length());
+
+        AlertDialog dialog = new MaterialAlertDialogBuilder(this)
+                .setTitle(getString(R.string.dialog_title_set_note, nickname))
+                .setView(db.getRoot())
+                .setPositiveButton(R.string.btn_confirm, null)
+                .setNegativeButton(R.string.btn_cancel, null)
+                .show();
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            saveMemberNote(targetDeviceId, getText(db.etNickname));
+            dialog.dismiss();
+            Snackbar.make(binding.getRoot(), R.string.msg_note_saved, Snackbar.LENGTH_SHORT).show();
+        });
     }
 
     private void showKickConfirmDialog(String targetId, String displayName) {
@@ -529,11 +556,11 @@ public class GroupDetailActivity extends AppCompatActivity {
     }
 
     private void showAddExpenseDialog() {
-        viewModel.loadMembers(groupId, nicknames -> {
+        viewModel.loadMembersWithIds(groupId, membersMap -> {
             DialogAddExpenseBinding dialogBinding = DialogAddExpenseBinding.inflate(getLayoutInflater());
             String today = new SimpleDateFormat("MM/dd", Locale.getDefault()).format(new Date());
             dialogBinding.etDate.setText(today);
-            setupPayerDropdown(dialogBinding, nicknames, myNickname);
+            setupPayerDropdown(dialogBinding, membersMap, myNickname);
             setupDatePicker(dialogBinding, null);
             setupEqualSplitButton(dialogBinding);
 
@@ -551,14 +578,14 @@ public class GroupDetailActivity extends AppCompatActivity {
     }
 
     private void showEditExpenseDialog(Expense expense) {
-        viewModel.loadMembers(groupId, nicknames -> {
+        viewModel.loadMembersWithIds(groupId, membersMap -> {
             DialogAddExpenseBinding dialogBinding = DialogAddExpenseBinding.inflate(getLayoutInflater());
             dialogBinding.etDescription.setText(expense.getDescription());
             dialogBinding.etTotalAmount.setText(formatAmount(expense.getTotalAmount()));
             dialogBinding.etMyShare.setText(formatAmount(expense.getMyShare()));
             dialogBinding.etDate.setText(expense.getDate());
             dialogBinding.chipGroupCategory.check(categoryToChipId(expense.getCategory()));
-            setupPayerDropdown(dialogBinding, nicknames, expense.getPayer());
+            setupPayerDropdown(dialogBinding, membersMap, expense.getPayer());
             setupDatePicker(dialogBinding, expense.getDate());
             setupEqualSplitButton(dialogBinding);
 
@@ -575,13 +602,33 @@ public class GroupDetailActivity extends AppCompatActivity {
         });
     }
 
-    private void setupPayerDropdown(DialogAddExpenseBinding db, List<String> nicknames, String defaultValue) {
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_dropdown_item_1line, nicknames);
-        db.etPayer.setAdapter(adapter);
-        if (!TextUtils.isEmpty(defaultValue)) {
-            db.etPayer.setText(defaultValue, false);
+    private void setupPayerDropdown(DialogAddExpenseBinding db, Map<String, String> membersMap, String defaultNickname) {
+        // Build display list: nickname → nickname(備註) if note exists
+        Map<String, String> nicknameToDisplay = new LinkedHashMap<>();
+        for (Map.Entry<String, String> entry : membersMap.entrySet()) {
+            String rawNickname = entry.getValue().replace("★", "").trim();
+            String note = getMemberNote(entry.getKey());
+            String display = TextUtils.isEmpty(note) ? rawNickname : rawNickname + "(" + note + ")";
+            nicknameToDisplay.put(rawNickname, display);
         }
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_dropdown_item_1line, new ArrayList<>(nicknameToDisplay.values()));
+        db.etPayer.setAdapter(adapter);
+        String displayDefault = nicknameToDisplay.containsKey(defaultNickname)
+                ? nicknameToDisplay.get(defaultNickname) : defaultNickname;
+        if (!TextUtils.isEmpty(displayDefault)) {
+            db.etPayer.setText(displayDefault, false);
+        }
+    }
+
+    private String getMemberNote(String targetDeviceId) {
+        return getSharedPreferences("member_notes", MODE_PRIVATE)
+                .getString(groupId + "_" + targetDeviceId, "");
+    }
+
+    private void saveMemberNote(String targetDeviceId, String note) {
+        getSharedPreferences("member_notes", MODE_PRIVATE).edit()
+                .putString(groupId + "_" + targetDeviceId, note).apply();
     }
 
     private void setupDatePicker(DialogAddExpenseBinding dialogBinding, String existingDate) {
@@ -621,7 +668,9 @@ public class GroupDetailActivity extends AppCompatActivity {
     private boolean validateAndSubmitExpense(DialogAddExpenseBinding dialogBinding,
                                               AlertDialog dialog, Expense existing) {
         String desc = getText(dialogBinding.etDescription);
-        String payer = getText(dialogBinding.etPayer);
+        String payerDisplay = getText(dialogBinding.etPayer);
+        int parenIdx = payerDisplay.indexOf('(');
+        String payer = parenIdx >= 0 ? payerDisplay.substring(0, parenIdx).trim() : payerDisplay;
         String totalStr = getText(dialogBinding.etTotalAmount);
         String shareStr = getText(dialogBinding.etMyShare);
         String date = getText(dialogBinding.etDate);
