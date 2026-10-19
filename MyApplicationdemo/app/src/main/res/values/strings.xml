@@ -82,6 +82,8 @@
     <string name="label_settlement_settled">此群組已結清 ✓</string>
     <string name="label_settlement_i_owe">你欠 %1$s $%2$.0f</string>
     <string name="label_settlement_others_owe">待收款 $%1$.0f</string>
+    <string name="label_min_transactions_title">最少交易方案</string>
+    <string name="label_transaction_item">%1$s 付給 %2$s  $%3$.0f</string>
 
     <!-- Empty states -->
     <string name="label_no_groups">目前沒有群組\n點擊下方按鈕建立第一個群組</string>
