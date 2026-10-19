@@ -457,6 +457,17 @@ public class GroupDetailActivity extends AppCompatActivity {
                 new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
 
                     @Override
+                    public int getSwipeDirs(@NonNull RecyclerView recyclerView,
+                                            @NonNull RecyclerView.ViewHolder viewHolder) {
+                        int pos = viewHolder.getBindingAdapterPosition();
+                        if (pos != RecyclerView.NO_POSITION
+                                && adapter.getItemViewType(pos) == ExpenseAdapter.TYPE_DATE_HEADER) {
+                            return 0;
+                        }
+                        return super.getSwipeDirs(recyclerView, viewHolder);
+                    }
+
+                    @Override
                     public boolean onMove(@NonNull RecyclerView rv,
                                          @NonNull RecyclerView.ViewHolder vh,
                                          @NonNull RecyclerView.ViewHolder target) {
@@ -468,6 +479,7 @@ public class GroupDetailActivity extends AppCompatActivity {
                         int position = viewHolder.getBindingAdapterPosition();
                         if (position == RecyclerView.NO_POSITION) return;
                         Expense deleted = adapter.getItemAt(position);
+                        if (deleted == null) return;
                         viewModel.deleteExpense(deleted.getId());
 
                         Snackbar.make(binding.getRoot(),
